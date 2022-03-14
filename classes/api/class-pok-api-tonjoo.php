@@ -67,7 +67,7 @@ class POK_API_Tonjoo {
 			'body'        => null,
 			'compress'    => false,
 			'decompress'  => true,
-			'sslverify'   => false,
+			'sslverify'   => true,
 			'stream'      => false,
 			'filename'    => null,
 		);

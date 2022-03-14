@@ -2,7 +2,7 @@
 /**
  * Tonjoo License Handler
  *
- * Version:         3.1.1
+ * Version:         3.1.0
  * Contributors:    gama
  *
  * @package tonjoo-license-handler
@@ -125,9 +125,6 @@ if ( ! class_exists( 'Tonjoo_License_Handler_3' ) ) {
 				} else {
 					$plugins[ $this->plugin ] = $this->default_args;
 				}
-				update_option( TONJOO_PLUGINS_OPTION_NAME, $plugins );
-			} elseif ( $plugins[ $this->plugin ]['path'] !== $this->plugin_path ) { // fix when changing hosting.
-				$plugins[ $this->plugin ]['path'] = $this->plugin_path;
 				update_option( TONJOO_PLUGINS_OPTION_NAME, $plugins );
 			}
 			$this->licenses = get_option( TONJOO_PLUGINS_OPTION_NAME );

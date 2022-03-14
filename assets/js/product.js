@@ -1,186 +1,156 @@
-(function( $ ) {
-	'use strict';
-    window.pokProduct = {
-    	data: pok,
-    	nonces: pok_nonces,
-        el: {
-            window: $(window),
-            document: $(document),
-            body: $('body'),
-            province: $('#select_province'),
-            city: $('#select_city'),
-            district: $('#select_district'),
-            result_wrapper: $('.pok-shipping-estimation-result-wrapper'),
-            product_id: $('.pok_shipping_product'),
-			qty: $('.pok_shipping_qty'),
-			destination: $('.pok_check_shipping'),
-			origin: $('.pok_shipping_origin')
-        },
+jQuery(function($) {
 
-        fn: {
+	var pok_result_wrapper = $('.pok-shipping-estimation-result-wrapper');
 
-        	load_city_list( province_id ) {
-				pokProduct.el.city.prop('disabled',true);
-				pokProduct.el.district.prop('disabled',true);
-				if ( '0' !== province_id && '' !== province_id ) {
-					$.ajax({
-						url: pokProduct.data.ajaxurl,
-						type: "POST",
-						data: {
-							action : 'pok_get_list_city',
-							province_id : province_id,
-							pok_action : pokProduct.nonces.get_list_city
-						},
-						dataType:'json',
-						cache: false,
-						success: function(data){
-						  	pokProduct.fn.generate_select( pokProduct.el.city, data, pokProduct.data.labelSelectCity );
-						  	pokProduct.fn.generate_select( pokProduct.el.district, {}, pokProduct.data.labelSelectDistrict );
-							pokProduct.el.city.prop('disabled',false);
-							pokProduct.el.district.prop('disabled',false);
-							pokProduct.el.city.trigger('setvalue').trigger('change');
-						},
-						error: function(err) {
-							console.log(err);
-						}
-					});
-				} else {
-					pokProduct.fn.generate_select( pokProduct.el.city, {}, pokProduct.data.labelSelectCity );
-				  	pokProduct.fn.generate_select( pokProduct.el.district, {}, pokProduct.data.labelSelectDistrict );
-					pokProduct.el.city.prop('disabled',false);
-					pokProduct.el.district.prop('disabled',false);
-					pokProduct.el.city.trigger('setvalue').trigger('change');
+	function pok_check_shipping_estimation( destination ) {
+		var product_id 	= $('.pok_shipping_product').val();
+		var qty 		= $('.pok_shipping_qty').val();
+		var destination = $('.pok_check_shipping').val();
+		var origin 		= $('.pok_shipping_origin').val();
+
+		if ( ! qty ) {
+			pok_result_wrapper.html( '<p>' + pok.insertQty + '</p>' );
+		} else if ( '0' === destination ) {
+			pok_result_wrapper.html( '<p>' + pok.selectDestination + '</p>' );
+		} else {
+			pok_result_wrapper.html( '<p>' + pok.loading + '</p>' );
+			$.ajax({
+				url: pok.ajaxurl,
+				type: "POST",
+				data: {
+					action : 'pok_get_estimated_cost',
+					destination : destination,
+					product_id : product_id,
+					origin : origin,
+					qty : qty,
+					pok_action : pok_nonces.get_cost
+				},
+				dataType:'json',
+				cache: false,
+				success: function(result){
+				  	pok_result_wrapper.html(result.html);
+				},
+				error: function(err) {
+					console.log(err);
 				}
-			},
+			});
+		}
+	}
 
-			load_district_list( city_id ) {
-				pokProduct.el.district.prop('disabled',true);
-				if ( '0' !== city_id && '' !== city_id ) {
-					$.ajax({
-						url: pokProduct.data.ajaxurl,
-						type: "POST",
-						data: {
-							action : 'pok_get_list_district',
-							city_id : city_id,
-							pok_action : pokProduct.nonces.get_list_district
-						},
-						dataType:'json',
-						cache: false,
-						success: function(data){
-						  	pokProduct.fn.generate_select( pokProduct.el.district, data, pokProduct.data.labelSelectDistrict );
-						  	pokProduct.el.district.prop('disabled',false);
-							pokProduct.el.district.trigger('setvalue').trigger('change');
-					  	}
-					});
-				} else {
-					pokProduct.fn.generate_select( pokProduct.el.district, {}, pokProduct.data.labelSelectDistrict );
-				  	pokProduct.el.district.prop('disabled',false);
-					pokProduct.el.district.trigger('setvalue').trigger('change');
-				}
-			},
+	$('.pok_check_shipping, .pok_shipping_qty').on('change', function() {
+		pok_check_shipping_estimation();
+	});
 
-        	check_shipping_estimation( destination ) {
-        		var el          = pokProduct.el;
-        		var data        = pokProduct.data;
-        		var nonces      = pokProduct.nonces;
-				var product_id 	= el.product_id.val();
-				var qty 		= el.qty.val();
-				var destination = el.destination.val();
-				var origin 		= el.origin.val();
+	$('[href="#tab-shipping_estimation"]').on('click', function() {
+		pok_check_shipping_estimation();
+	});
 
-				if ( ! qty ) {
-					el.result_wrapper.html( '<p>' + data.insertQty + '</p>' );
-				} else if ( '0' === destination ) {
-					el.result_wrapper.html( '<p>' + data.selectDestination + '</p>' );
-				} else {
-					el.result_wrapper.html( '<p>' + data.loading + '</p>' );
-					$.ajax({
-						url: data.ajaxurl,
-						type: "POST",
-						data: {
-							action : 'pok_get_estimated_cost',
-							destination : destination,
-							product_id : product_id,
-							origin : origin,
-							qty : qty,
-							pok_action : nonces.get_cost
-						},
-						dataType:'json',
-						cache: false,
-						success: function(result){
-						  	el.result_wrapper.html(result.html);
-						},
-						error: function(err) {
-							console.log(err);
-						}
-					});
-				}
-			},
-
-			generate_select: function(selector,options,label) {
-				selector.val('').empty().append('<option value="">'+label+'</option>');
-				if ( ! $.isEmptyObject(options) ) {
-					for ( var o in options ) {
-						selector.append('<option value="'+o+'">'+options[o]+'</option>');     
+	// $('.init-select2').each(function() {
+	// 	$(this).select2();
+	// });
+	
+	$( '.select2-ajax' ).each(function() {
+		var action 	= $(this).data('action');
+		var phrase	= $(this).val();
+		var nonce 	= $(this).data('nonce');
+		$(this).select2({
+			ajax: {
+				url: pok.ajaxurl,
+				dataType: 'json',
+				data: function( params ) {
+					return {
+						pok_action: nonce,
+						action: action,
+						q: params.term
 					}
+				},
+				processResults: function (data, params) {
+					return {
+						results: data
+					};
+				},
+    			cache: true
+			},
+			minimumInputLength: 3,
+			placeholder: $(this).attr('placeholder')
+		});
+	});
+
+	$('#select_province').on( 'change', function() {
+		var province_id = $(this).val();
+		pok_load_city_list( province_id, 'custom' );
+	} );
+
+	$('#select_city').on( 'change', function() {
+		if ( pok.enableDistrict ) {
+			var city_id = $(this).val();
+			pok_load_district_list( city_id, 'custom' );
+		}
+	});
+
+	function pok_load_city_list( province_id ) {
+		$('#select_city, #select_district').prop('disabled',true);
+		var arrCity  = '<option value="0">' + pok.labelSelectCity + '</option>';
+	  	var arrDistrict  = '<option value="0">' + pok.labelSelectDistrict + '</option>';
+		if ( '0' !== province_id && '' !== province_id ) {
+			$.ajax({
+				url: pok.ajaxurl,
+				type: "POST",
+				data: {
+					action : 'pok_get_list_city',
+					province_id : province_id,
+					pok_action : pok_nonces.get_list_city
+				},
+				dataType:'json',
+				cache: false,
+				success: function(arr){
+				  	var selectList = '';
+				  	$('#select_city').val('').empty().append(arrCity);
+					$('#select_district').val('').empty().append(arrDistrict); 
+				  	$.each(arr, function(key,value) {
+						var data = {};
+						arrCity += '<option value='+ key + '>'+ value +'</option>';
+					});
+					$('#select_city, #select_district').prop('disabled',false);
+					$('#select_city').html(arrCity).trigger('setvalue').trigger('change');
+				},
+				error: function(err) {
+					console.log(err);
 				}
-			}
-
-        },
-
-        run: function () {
-        	var el = pokProduct.el;
-			var local = pokProduct.data;
-			var fn = pokProduct.fn;
-
-            $( '.select2-ajax' ).each(function() {
-				var action 	= $(this).data('action');
-				var phrase	= $(this).val();
-				var nonce 	= $(this).data('nonce');
-				$(this).select2({
-					ajax: {
-						url: local.ajaxurl,
-						dataType: 'json',
-						delay: 250,
-						data: function( params ) {
-							return {
-								pok_action: nonce,
-								action: action,
-								q: params.term
-							}
-						},
-						processResults: function (data, params) {
-							return {
-								results: data
-							};
-						},
-		    			cache: true
-					},
-					minimumInputLength: 3,
-					placeholder: $(this).attr('placeholder')
-				});
 			});
+		} else {
+			$('#select_city').prop('disabled',false).html(arrCity).trigger('change');
+			$('#select_district').prop('disabled',false).html(arrDistrict);
+		}
+	}
 
-			el.province.on( 'change', function() {
-				var province_id = $(this).val();
-				fn.load_city_list( province_id, 'custom' );
-			} );
-
-			el.city.on( 'change', function() {
-				if ( local.enableDistrict ) {
-					var city_id = $(this).val();
-					fn.load_district_list( city_id, 'custom' );
-				}
+	function pok_load_district_list( city_id ) {
+		$('#select_district').prop('disabled',true);
+	  	var arrDistrict  = '<option value="0">' + pok.labelSelectDistrict + '</option>';
+		if ( '0' !== city_id && '' !== city_id ) {
+			$.ajax({
+				url: pok.ajaxurl,
+				type: "POST",
+				data: {
+					action : 'pok_get_list_district',
+					city_id : city_id,
+					pok_action : pok_nonces.get_list_district
+				},
+				dataType:'json',
+				cache: false,
+				success: function(arr){
+				  	var selectList = '';
+				  	$('#select_district').val('').empty().append(arrDistrict); 
+				  	$.each(arr, function(key,value) {
+						var data = {};
+						arrDistrict += '<option value='+ key + '>'+ value +'</option>';
+					});
+					$('#select_district').html(arrDistrict).trigger('setvalue').prop('disabled',false);
+			  	}
 			});
+		} else {
+			$('#select_district').html(arrDistrict).prop('disabled',false);
+		}
+	}
 
-			$('.pok_check_shipping, .pok_shipping_qty').on('change', function() {
-				fn.check_shipping_estimation();
-			});
-
-			$('[href="#tab-shipping_estimation"]').on('click', function() {
-				fn.check_shipping_estimation();
-			});
-        }
-    };
-    pokProduct.run();
-})( jQuery );
+})
