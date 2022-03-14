@@ -106,7 +106,7 @@ class POK_Hooks_Addresses {
 	public function set_provinces( $states ) {
 		if ( is_admin() && function_exists( 'get_current_screen' ) ) {
 			$screen = get_current_screen();
-			if ( $screen && 'woocommerce_page_wc-settings' === $screen->id && ( ! isset( $_GET['tab'] ) || 'general' === sanitize_text_field( wp_unslash( $_GET['tab'] ) ) ) ) {
+			if ( 'woocommerce_page_wc-settings' === $screen->id && ( ! isset( $_GET['tab'] ) || 'general' === sanitize_text_field( wp_unslash( $_GET['tab'] ) ) ) ) {
 				return $states;
 			}
 		}
@@ -845,7 +845,7 @@ class POK_Hooks_Addresses {
 			$original_cost = isset( $shipping_meta['original_cost'] ) ? floatval( $shipping_meta['original_cost'] ) : floatval( $method->get_cost() );
 
 			if ( isset( $shipping_meta['original_cost'] ) && floatval( $shipping_meta['original_cost'] ) > floatval( $method->get_cost() ) ) {
-				$label = "<span class='pok-label'>" . $method->get_label() . ':</span> <span class="pok-price"><del>' . wc_price( $original_cost ) . '</del> <ins>' . wc_price( $method->get_cost() ) . '</ins></span>' . $etd;
+				$label = "<span class='pok-label'>" . $method->get_label() . ':</span> <span class="pok-price"><del>' . wc_price( $original_cost ) . '</del><ins>' . wc_price( $method->get_cost() ) . '</ins></span>' . $etd;
 			} else {
 				$label = "<span class='pok-label'>" . $method->get_label() . ':</span> <span class="pok-price">' . wc_price( $original_cost ) . "</span>" . $etd;
 			}

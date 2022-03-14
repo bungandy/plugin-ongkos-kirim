@@ -325,7 +325,7 @@ class POK_Ajax {
 			$html = '<table class="pok-shipping-estimation-result">';
 			$result = array();
 			foreach ( $rates as $rate ) {
-				if ( 'yes' === $this->setting->get( 'specific_service' ) && ( ! isset( $rate['source'] ) || 'custom' !== $rate['source'] ) && apply_filters( 'pok_rates_apply_filter', true, $rate, $product ) ) {
+				if ( 'yes' === $this->setting->get( 'specific_service' ) && ( ! isset( $rate['source'] ) || 'custom' !== $rate['source'] ) && apply_filters( 'pok_rates_apply_filter', true, $rate, $package ) ) {
 					if ( ! in_array( sanitize_title( $rate['class'] ), $this->setting->get( 'specific_service_option' ), true ) ) {
 						continue;
 					}

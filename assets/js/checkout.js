@@ -8,7 +8,7 @@
             body: $('body'),
             field: {
             	billing: {
-            		wrapper: $('.woocommerce-address-fields, .woocommerce-billing-fields'),
+            		wrapper: $('.woocommerce-billing-fields'),
             		country: $('#billing_country'),
             		state: $('#billing_state'),
             		_city: $('#billing_city'),
@@ -21,7 +21,7 @@
             		district_wrapper: $('#billing_pok_district_field')
             	},
             	shipping: {
-            		wrapper: $('.woocommerce-address-fields, .woocommerce-shipping-fields'),
+            		wrapper: $('.woocommerce-shipping-fields'),
             		country: $('#shipping_country'),
             		state: $('#shipping_state'),
             		_city: $('#shipping_city'),
@@ -180,7 +180,7 @@
 				billing.wrapper.on('change', '#billing_state', function() {
 					fn.load_city('billing');
 				});
-				shipping.wrapper.on('change', '#shipping_state', function() {
+				shipping.wrapper.on('change', '#billing_state', function() {
 					fn.load_city('shipping');
 				});
 				billing.city.on('change', function() {

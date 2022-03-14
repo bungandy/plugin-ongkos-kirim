@@ -92,23 +92,16 @@ class POK_Shipping_Method extends WC_Shipping_Method {
 			if ( 'pro' === $this->type ) { // get district (not provided by WC by default).
 				if ( isset( $_POST['post_data'] ) ) { // checkout page.
 					if ( '1' === $this->get_checkout_post_data( 'ship_to_different_address' ) ) {
-						$city = $this->get_checkout_post_data( 'shipping_pok_city' );
 						$district = $this->get_checkout_post_data( 'shipping_pok_district' );
 					} else {
-						$city = $this->get_checkout_post_data( 'billing_pok_city' );
 						$district = $this->get_checkout_post_data( 'billing_pok_district' );
 					}
 				} else { // order detail (after checkout).
 					if ( isset( $_POST['shipping_pok_district'] ) && ! empty( $_POST['shipping_pok_district'] ) ) {
-						$city = sanitize_text_field( wp_unslash( $_POST['shipping_pok_city'] ) );
 						$district = sanitize_text_field( wp_unslash( $_POST['shipping_pok_district'] ) );
 					} elseif ( isset( $_POST['billing_pok_district'] ) && ! empty( $_POST['billing_pok_district'] ) ) {
-						$city = sanitize_text_field( wp_unslash( $_POST['billing_pok_city'] ) );
 						$district = sanitize_text_field( wp_unslash( $_POST['billing_pok_district'] ) );
 					}
-				}
-				if ( ! empty( $city ) ) {
-					$destination['city'] = intval( $city );
 				}
 				if ( ! empty( $district ) ) {
 					$destination['district'] = intval( $district );
