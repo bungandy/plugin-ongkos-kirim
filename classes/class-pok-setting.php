@@ -71,6 +71,8 @@ class POK_Setting {
 				'show_shipping_estimation'		=> 'no', // also known as Shipping Calculator.
 				'show_shipping_etd'				=> 'no', // the real shipping estimation.
 				'use_simple_address_field'		=> 'no',
+				'override_default_location_to_indonesia' => 'yes',
+				'only_show_cargo_on_min_weight' => 'yes',
 				'custom_service_name'			=> array(
 					'nusantara'	 => array(),
 					'rajaongkir' => array()

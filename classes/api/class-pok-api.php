@@ -313,13 +313,27 @@ class POK_API {
 			}
 		} else { // API tonjoo.
 			$result = $this->tonjoo->get_cost( $origin, $destination, $courier );
+			$hide_cargo = $this->setting->get( 'only_show_cargo_on_min_weight' );
 			if ( $result['status'] ) {
 				$costs = array();
 				foreach ( $result['data'] as $c ) {
 					if ( ! empty( $c->tarif ) ) {
 						foreach ( $c->tarif as $t ) {
-							if ( 'JTR' === $t->namaLayanan && $weight >= 10000 ) { // JNE JTR.
-								$cost = $t->tarif + ( ( $this->helper->round_weight( $weight / 1000 ) - 10 ) * ( isset( $t->tarif_11_kg ) && ! empty( $t->tarif_11_kg ) ? ( $t->tarif_11_kg - $t->tarif ) : 10000 ) );
+
+							// Hide cargo when minimum weight is not reached.
+							if ( 'yes' === $hide_cargo && (
+								( 'jne' === strtolower( $c->nama ) && 'JTR' === $t->namaLayanan && $weight < 10000 ) ||
+								( 'sicepat' === strtolower( $c->nama ) && 'GOKIL' === $t->namaLayanan && $weight < 10000 ) ||
+								( 'lion' === strtolower( $c->nama ) && 'BIGPACK' === $t->namaLayanan && $weight < 10000 ) ||
+								( 'tiki' === strtolower( $c->nama ) && 'TRC' === $t->namaLayanan && $weight < 10000 ) ||
+								( 'wahana' === strtolower( $c->nama ) && 'Cargo' === $t->namaLayanan && $weight < 10000 )
+							) ) {
+								continue;
+							}
+
+							if ( 'JTR' === $t->namaLayanan ) { // JNE JTR.
+								$new_weight = max( 10000, $weight );
+								$cost = $t->tarif + ( ( $this->helper->round_weight( $new_weight / 1000 ) - 10 ) * ( isset( $t->tarif_11_kg ) && ! empty( $t->tarif_11_kg ) ? ( $t->tarif_11_kg - $t->tarif ) : 10000 ) );
 							} elseif ( 0 === strpos( $t->namaLayanan, 'JTR' ) ) { // take out other JTR from result.
 								continue;
 							} elseif ( 'Paketpos Biasa' === $t->namaLayanan && $weight <= 2000 ) { // PaketPos Biasa only if weight>2kg.
@@ -330,17 +344,23 @@ class POK_API {
 								} else {
 									$cost = $t->tarif * $this->helper->round_weight( $weight / 1000 );
 								}
-							} elseif ( 'sicepat' === strtolower( $c->nama ) && 'Cargo' === $t->namaLayanan && $weight < 5000 ) {
-								continue;
+							} elseif ( 'sicepat' === strtolower( $c->nama ) && 'GOKIL' === $t->namaLayanan ) {
+								$new_weight = max( 10000, $weight );
+								$cost = $t->tarif * $this->helper->round_weight( $new_weight / 1000 );
+							} elseif ( 'lion' === strtolower( $c->nama ) && 'BIGPACK' === $t->namaLayanan ) {
+								$new_weight = max( 10000, $weight );
+								$cost = $t->tarif * $this->helper->round_weight( $new_weight / 1000 );
 							} elseif ( 'tiki' === strtolower( $c->nama ) && in_array( $t->namaLayanan, array( 'T25', 'T15', 'T60', 'TRC' ) ) ) {
-								if ( 'TRC' === $t->namaLayanan && $weight >= 10000 ) {
-									$cost = $t->tarif + ( ( $this->helper->round_weight( $weight / 1000 ) - 10 ) * ( isset( $t->tarif_11_kg ) && ! empty( $t->tarif_11_kg ) ? ( $t->tarif_11_kg - $t->tarif ) : 10000 ) );
+								if ( 'TRC' === $t->namaLayanan ) {
+									$new_weight = max( 10000, $weight );
+									$cost = $t->tarif + ( ( $this->helper->round_weight( $new_weight / 1000 ) - 10 ) * ( isset( $t->tarif_11_kg ) && ! empty( $t->tarif_11_kg ) ? ( $t->tarif_11_kg - $t->tarif ) : 10000 ) );
 								} else {
 									continue;
 								}
 							} elseif ( 'wahana' === strtolower( $c->nama ) && in_array( $t->namaLayanan, array( 'Cargo', 'PopBox' ) ) ) {
-								if ( 'Cargo' === $t->namaLayanan && $weight >= 10000 ) {
-									$cost = $t->tarif + ( ( $this->helper->round_weight( $weight / 1000 ) - 10 ) * ( isset( $t->tarif_11_kg ) && ! empty( $t->tarif_11_kg ) ? ( $t->tarif_11_kg - $t->tarif ) : 10000 ) );
+								if ( 'Cargo' === $t->namaLayanan ) {
+									$new_weight = max( 10000, $weight );
+									$cost = $t->tarif + ( ( $this->helper->round_weight( $new_weight / 1000 ) - 10 ) * ( isset( $t->tarif_11_kg ) && ! empty( $t->tarif_11_kg ) ? ( $t->tarif_11_kg - $t->tarif ) : 10000 ) );
 								} elseif ( 'PopBox' === $t->namaLayanan && $weight >= 2000 ) {
 									$cost = $t->tarif + ( ( $this->helper->round_weight( $weight / 1000 ) - 2 ) * ( isset( $t->tarif_3_kg ) && ! empty( $t->tarif_3_kg ) ? ( $t->tarif_3_kg - $t->tarif ) : 10000 ) );
 								} else {
@@ -351,7 +371,7 @@ class POK_API {
 							}
 
 							// fix etd time not valid.
-							$etd = trim( str_replace( 'Hari', '', $t->etd ) );
+							$etd = trim( str_replace( array( 'Hari', 'HARI' ), '', $t->etd ) );
 							if ( false === strpos( $etd, '-' ) ) {
 								if ( 0 !== intval( $etd ) ) {
 									if ( 0 < floor( intval( $etd ) / 24 ) ) {
@@ -402,13 +422,15 @@ class POK_API {
 				foreach ( $result as $c ) {
 					if ( is_array( $c->costs ) && ! empty( $c->costs ) ) {
 						foreach ( $c->costs as $t ) {
+							$etd = ! empty( $t->etd ) ? $t->etd : '';
+							$etd = trim( str_replace( array( 'Hari', 'HARI' ), '', $etd ) );
 							$costs[] = array(
 								'class'         => strtoupper( $c->code ) . ' - ' . $t->service,
 								'courier'       => strtolower( $c->code ),
 								'service'       => $t->service,
 								'description'   => '',
 								'cost'          => 'USD' === $t->currency ? floatval( $t->cost ) * floatval( $exchange ) : floatval( $t->cost ),
-								'time'          => ! empty( $t->etd ) ? $t->etd : '',
+								'time'          => $etd,
 							);
 						}
 					}

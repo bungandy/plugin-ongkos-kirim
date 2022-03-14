@@ -12,11 +12,11 @@
 		<div class="setting-sub-option options-enable-insurance <?php echo 'set' === $settings['enable_insurance'] || 'yes' === $settings['enable_insurance'] ? 'show' : ''; ?>">
 			<label for="pok-insurance_application"><?php esc_html_e( 'How insurance fee will be applied to the cost?', 'pok' ); ?></label>
 			<select name="pok_setting[insurance_application]" id="pok-insurance_application">
-				<option <?php echo 'by_user' === $settings['insurance_application'] ? 'selected' : ''; ?> value="by_user"><?php esc_html_e( 'Let user decide', 'pok' ); ?></option>
+				<option <?php echo 'by_user' === $settings['insurance_application'] ? 'selected' : ''; ?> value="by_user"><?php esc_html_e( 'Let customer decide', 'pok' ); ?></option>
 				<option <?php echo 'force' === $settings['insurance_application'] ? 'selected' : ''; ?> value="force"><?php esc_html_e( 'Always apply insurance fee', 'pok' ); ?></option>
 			</select>
 			<p class="helper">
-				<?php esc_html_e( 'If you let user to decide, a checkbox will be shown on checkout page to let user to choose to add insurance fee or not.', 'pok' ); ?>
+				<?php esc_html_e( 'If you let customer to decide, a checkbox will be shown on checkout page to let customer to choose to add insurance fee or not.', 'pok' ); ?>
 			</p>
 		</div>
 		<p class="helper"><?php printf( __( 'Each courier applies different rules for insurance calculations. For more info, <a href="%s">check here</a>.', 'pok' ), 'http://pustaka.tonjoostudio.com/plugins/woo-ongkir-manual/#section-shipping-insurance' ); ?></p>

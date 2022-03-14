@@ -92,16 +92,35 @@ class POK_Shipping_Method extends WC_Shipping_Method {
 			if ( 'pro' === $this->type ) { // get district (not provided by WC by default).
 				if ( isset( $_POST['post_data'] ) ) { // checkout page.
 					if ( '1' === $this->get_checkout_post_data( 'ship_to_different_address' ) ) {
-						$district = $this->get_checkout_post_data( 'shipping_district' );
+						$city = $this->get_checkout_post_data( 'shipping_pok_city' );
+						$district = $this->get_checkout_post_data( 'shipping_pok_district' );
 					} else {
-						$district = $this->get_checkout_post_data( 'billing_district' );
+						$city = $this->get_checkout_post_data( 'billing_pok_city' );
+						$district = $this->get_checkout_post_data( 'billing_pok_district' );
 					}
 				} else { // order detail (after checkout).
-					if ( isset( $_POST['shipping_district'] ) && ! empty( $_POST['shipping_district'] ) ) {
-						$district = sanitize_text_field( wp_unslash( $_POST['shipping_district'] ) );
-					} elseif ( isset( $_POST['billing_district'] ) && ! empty( $_POST['billing_district'] ) ) {
-						$district = sanitize_text_field( wp_unslash( $_POST['billing_district'] ) );
+					if ( $this->helper->is_use_simple_address_field() ) {
+						if ( isset( $_POST['shipping_pok_city'] ) && ! empty( $_POST['shipping_pok_city'] ) ) {
+							$exp = explode( '_', $_POST['shipping_pok_city'] );
+							$district = $exp[0];
+							$city     = $exp[1];
+						} elseif ( isset( $_POST['billing_pok_city'] ) && ! empty( $_POST['billing_pok_city'] ) ) {
+							$exp = explode( '_', $_POST['billing_pok_city'] );
+							$district = $exp[0];
+							$city     = $exp[1];
+						}
+					} else {
+						if ( isset( $_POST['shipping_pok_district'] ) && ! empty( $_POST['shipping_pok_district'] ) ) {
+							$city = sanitize_text_field( wp_unslash( $_POST['shipping_pok_city'] ) );
+							$district = sanitize_text_field( wp_unslash( $_POST['shipping_pok_district'] ) );
+						} elseif ( isset( $_POST['billing_pok_district'] ) && ! empty( $_POST['billing_pok_district'] ) ) {
+							$city = sanitize_text_field( wp_unslash( $_POST['billing_pok_city'] ) );
+							$district = sanitize_text_field( wp_unslash( $_POST['billing_pok_district'] ) );
+						}
 					}
+				}
+				if ( ! empty( $city ) ) {
+					$destination['city'] = intval( $city );
 				}
 				if ( ! empty( $district ) ) {
 					$destination['district'] = intval( $district );
@@ -109,7 +128,20 @@ class POK_Shipping_Method extends WC_Shipping_Method {
 				}
 				$destination_type = 'district';
 			} else {
-				$destination_id = intval( $destination['city'] );
+				if ( isset( $_POST['post_data'] ) ) { // checkout page.
+					if ( '1' === $this->get_checkout_post_data( 'ship_to_different_address' ) ) {
+						$city = $this->get_checkout_post_data( 'shipping_pok_city' );
+					} else {
+						$city = $this->get_checkout_post_data( 'billing_pok_city' );
+					}
+				} else { // order detail (after checkout).
+					if ( isset( $_POST['shipping_pok_city'] ) && ! empty( $_POST['shipping_pok_city'] ) ) {
+						$city = sanitize_text_field( wp_unslash( $_POST['shipping_pok_city'] ) );
+					} elseif ( isset( $_POST['billing_pok_city'] ) && ! empty( $_POST['billing_pok_city'] ) ) {
+						$city = sanitize_text_field( wp_unslash( $_POST['billing_pok_city'] ) );
+					}
+				}
+				$destination_id = intval( $city );
 				$destination_type = 'city';
 			}
 			// get costs.
@@ -307,6 +339,20 @@ class POK_Shipping_Method extends WC_Shipping_Method {
 	private function get_checkout_post_data( $field ) {
 		if ( isset( $_POST['post_data'] ) ) {
 			parse_str( $_POST['post_data'], $return );
+			if ( $this->helper->is_use_simple_address_field() ) {
+				if ( ! empty( $return['billing_pok_city'] ) ) {
+					$exp = explode( '_', $return['billing_pok_city'] );
+					$return['billing_pok_district'] = $exp[0];
+					$return['billing_pok_city']     = $exp[1];
+					$return['billing_state']        = $exp[2];
+				}
+				if ( ! empty( $return['shipping_pok_city'] ) ) {
+					$exp = explode( '_', $return['shipping_pok_city'] );
+					$return['shipping_pok_district'] = $exp[0];
+					$return['shipping_pok_city']     = $exp[1];
+					$return['shipping_state']        = $exp[2];
+				}
+			}
 			$return = str_replace( '+',' ',$return );
 			if ( isset( $return[ $field ] ) ) {
 				return $return[ $field ];
