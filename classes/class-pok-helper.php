@@ -280,10 +280,7 @@ class POK_Helper {
 	 * @return boolean Is active.
 	 */
 	public static function is_woocommerce_active() {
-		if ( ! function_exists( 'is_plugin_active_for_network' ) ) {
-		    require_once( ABSPATH . '/wp-admin/includes/plugin.php' );
-		}
-		return in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', get_option( 'active_plugins' ) ), true ) || is_plugin_active_for_network( 'woocommerce/woocommerce.php' );
+		return in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', get_option( 'active_plugins' ) ), true );
 	}
 
 	/**
@@ -608,26 +605,12 @@ class POK_Helper {
 	 * @return float          Converted price.
 	 */
 	public function currency_convert( $price = 0, $symbol = '' ) {
-		$currency = $_COOKIE['wmc_current_currency'];
 		if ( empty( $symbol ) ) {
 			$symbol = get_option( 'woocommerce_currency', 'IDR' );
 		}
 		$method = $this->setting->get( 'currency_conversion' );
 		if ( 'IDR' === $symbol || 'dont_convert' === $method ) {
-			if ('IDR' === $currency){
-				$rate = 1;
-			}
-			else {
-				$current = 'https://apilayer.net/api/live?access_key=1a0bfbf405da9e698a90a37baa024e95&currencies=USD&source=IDR&format=1';
-
-				$cur = wp_remote_get($current);
-				if ( is_array( $cur ) && ! is_wp_error( $cur ) ) {
-					$headers = $cur['headers'];
-					$body    = $cur['body'];
-				}
-				$getbody = json_decode($body, true);
-				$rate = $getbody['quotes']['IDRUSD'];
-			}
+			$rate = 1;
 		} elseif ( 'fixer' === $method ) {
 			if ( '' !== $this->setting->get( 'currency_fixer_api_key' ) ) {
 				global $pok_core;

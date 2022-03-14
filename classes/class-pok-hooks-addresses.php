@@ -176,14 +176,12 @@ class POK_Hooks_Addresses {
 			$fields[ $type . '_country' ]['priority'] = $this->field_order['country'];
 		}
 
-		$existing_class = isset( $fields[ $type . '_city' ]['class'] ) ? $fields[ $type . '_city' ]['class'] : array();
-
 		if ( ! $this->helper->is_use_simple_address_field() ) {
 			$fields[ $type . '_pok_city' ] = array(
 				'label'       => __( 'City', 'pok' ),
 				'placeholder' => __( 'Select City', 'pok' ),
 				'type'        => 'select',
-				'class'       => array_merge( $existing_class, array( 'validate-required', 'init-select2' ) ),
+				'class'       => array( 'validate-required', 'init-select2' ),
 				'options'     => array( '' => __( 'Select City', 'pok' ) ),
 				'priority'    => $this->field_order['city'],
 			);
@@ -193,7 +191,7 @@ class POK_Hooks_Addresses {
 				'placeholder'  		=> __( 'Search Town / City', 'pok' ),
 				'type'         		=> 'select',
 				'options'      		=> array( '' => __( 'Search Town / City', 'pok' ) ),
-				'class'        		=> array_merge( $existing_class, array( 'update_totals_on_change', 'address-field', 'select2-ajax' ) ),
+				'class'        		=> array( 'update_totals_on_change', 'address-field', 'select2-ajax' ),
 				'custom_attributes'	=> array(
 					'data-action'	=> 'pok_search_simple_address',
 					'data-nonce'	=> wp_create_nonce( 'search_city' )
@@ -208,7 +206,7 @@ class POK_Hooks_Addresses {
 				'placeholder' => __( 'Select District', 'pok' ),
 				'type'        => 'select',
 				'options'     => array( '' => __( 'Select District', 'pok' ) ),
-				'class'       => array_merge( $existing_class, array( 'update_totals_on_change', 'address-field', 'init-select2' ) ),
+				'class'       => array( 'update_totals_on_change', 'address-field', 'init-select2' ),
 				'priority'    => $this->field_order['district'],
 			);
 		}
@@ -375,7 +373,7 @@ class POK_Hooks_Addresses {
 	 * Load scripts
 	 */
 	public function enqueue_scripts() {
-		if ( $this->helper->is_woocommerce_active() ) {
+		if ( in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', get_option( 'active_plugins' ) ), true ) ) {
 			if ( is_checkout() || is_account_page() || apply_filters( 'pok_is_checkout', false ) ) {
 				wp_enqueue_style( 'pok-checkout', POK_PLUGIN_URL . '/assets/css/checkout.css', array( 'select2' ), POK_VERSION );
 				wp_enqueue_script( 'pok-checkout', POK_PLUGIN_URL . '/assets/js/checkout.js', array( 'jquery', 'select2' ), POK_VERSION, true );
@@ -670,8 +668,7 @@ class POK_Hooks_Addresses {
 	 */
 	public function add_custom_fee() {
 		// unique number.
-		$currency = $_COOKIE['wmc_current_currency'];
-		if ( 'yes' === $this->setting->get( 'unique_number' ) && 'IDR' === $currency) {
+		if ( 'yes' === $this->setting->get( 'unique_number' ) ) {
 			if ( WC()->session->__isset( 'pok_random_number' ) ) {
 				$number = WC()->session->get( 'pok_random_number' );
 			} else {

@@ -3,14 +3,14 @@
  * Plugin Name:     Plugin Ongkos Kirim
  * Plugin URI:      https://tonjoostudio.com/addons/woo-ongkir/
  * Description:     Hitung ongkos kirim seluruh Indonesia (JNE, POS, Tiki, JNT, Wahana, Lion Parcel, Sicepat, dll)
- * Version:         3.8.5
+ * Version:         3.8.1
  * Author:          Tonjoo Studio
  * Author URI:      https://tonjoostudio.com
  * License:         GPL
  * Text Domain:     pok
  * Domain Path:     /languages
  * WC requires at least: 3.0.0
- * WC tested up to: 6.1
+ * WC tested up to: 6.0
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -18,7 +18,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 // constants.
-define( 'POK_VERSION', '3.8.5' );
+define( 'POK_VERSION', '3.8.1' );
 define( 'POK_PLUGIN_PATH', plugin_dir_path( __FILE__ ) );
 define( 'POK_PLUGIN_URL', plugins_url( basename( plugin_dir_path( __FILE__ ) ), basename( __FILE__ ) ) );
 define( 'POK_DEBUG', false );

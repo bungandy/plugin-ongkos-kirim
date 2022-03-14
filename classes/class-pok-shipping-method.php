@@ -99,24 +99,12 @@ class POK_Shipping_Method extends WC_Shipping_Method {
 						$district = $this->get_checkout_post_data( 'billing_pok_district' );
 					}
 				} else { // order detail (after checkout).
-					if ( $this->helper->is_use_simple_address_field() ) {
-						if ( isset( $_POST['shipping_pok_city'] ) && ! empty( $_POST['shipping_pok_city'] ) ) {
-							$exp = explode( '_', $_POST['shipping_pok_city'] );
-							$district = $exp[0];
-							$city     = $exp[1];
-						} elseif ( isset( $_POST['billing_pok_city'] ) && ! empty( $_POST['billing_pok_city'] ) ) {
-							$exp = explode( '_', $_POST['billing_pok_city'] );
-							$district = $exp[0];
-							$city     = $exp[1];
-						}
-					} else {
-						if ( isset( $_POST['shipping_pok_district'] ) && ! empty( $_POST['shipping_pok_district'] ) ) {
-							$city = sanitize_text_field( wp_unslash( $_POST['shipping_pok_city'] ) );
-							$district = sanitize_text_field( wp_unslash( $_POST['shipping_pok_district'] ) );
-						} elseif ( isset( $_POST['billing_pok_district'] ) && ! empty( $_POST['billing_pok_district'] ) ) {
-							$city = sanitize_text_field( wp_unslash( $_POST['billing_pok_city'] ) );
-							$district = sanitize_text_field( wp_unslash( $_POST['billing_pok_district'] ) );
-						}
+					if ( isset( $_POST['shipping_pok_district'] ) && ! empty( $_POST['shipping_pok_district'] ) ) {
+						$city = sanitize_text_field( wp_unslash( $_POST['shipping_pok_city'] ) );
+						$district = sanitize_text_field( wp_unslash( $_POST['shipping_pok_district'] ) );
+					} elseif ( isset( $_POST['billing_pok_district'] ) && ! empty( $_POST['billing_pok_district'] ) ) {
+						$city = sanitize_text_field( wp_unslash( $_POST['billing_pok_city'] ) );
+						$district = sanitize_text_field( wp_unslash( $_POST['billing_pok_district'] ) );
 					}
 				}
 				if ( ! empty( $city ) ) {
