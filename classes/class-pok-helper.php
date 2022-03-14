@@ -280,10 +280,7 @@ class POK_Helper {
 	 * @return boolean Is active.
 	 */
 	public static function is_woocommerce_active() {
-		if ( ! function_exists( 'is_plugin_active_for_network' ) ) {
-		    require_once( ABSPATH . '/wp-admin/includes/plugin.php' );
-		}
-		return in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', get_option( 'active_plugins' ) ), true ) || is_plugin_active_for_network( 'woocommerce/woocommerce.php' );
+		return in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', get_option( 'active_plugins' ) ), true );
 	}
 
 	/**
@@ -608,26 +605,12 @@ class POK_Helper {
 	 * @return float          Converted price.
 	 */
 	public function currency_convert( $price = 0, $symbol = '' ) {
-		$currency = $_COOKIE['wmc_current_currency'];
 		if ( empty( $symbol ) ) {
 			$symbol = get_option( 'woocommerce_currency', 'IDR' );
 		}
 		$method = $this->setting->get( 'currency_conversion' );
 		if ( 'IDR' === $symbol || 'dont_convert' === $method ) {
-			if ('IDR' === $currency){
-				$rate = 1;
-			}
-			else {
-				$current = 'https://apilayer.net/api/live?access_key=1a0bfbf405da9e698a90a37baa024e95&currencies=USD&source=IDR&format=1';
-
-				$cur = wp_remote_get($current);
-				if ( is_array( $cur ) && ! is_wp_error( $cur ) ) {
-					$headers = $cur['headers'];
-					$body    = $cur['body'];
-				}
-				$getbody = json_decode($body, true);
-				$rate = $getbody['quotes']['IDRUSD'];
-			}
+			$rate = 1;
 		} elseif ( 'fixer' === $method ) {
 			if ( '' !== $this->setting->get( 'currency_fixer_api_key' ) ) {
 				global $pok_core;
@@ -783,22 +766,15 @@ class POK_Helper {
 	 * @param  string  $type     Address type.
 	 * @return integer           Address id.
 	 */
-	public function get_address_id_from_order( $order_id = 0, $type = 'billing', $field = 'state' ) {
-		if ( ! in_array( $type, array( 'billing', 'shipping' ), true ) || ! in_array( $field, array( 'country', 'state', 'city', 'district' ), true ) ) {
+	public function get_address_id_from_order( $order_id = 0, $type = 'billing_state' ) {
+		if ( ! in_array( $type, array( 'billing_country', 'billing_state', 'billing_city', 'billing_district', 'shipping_country', 'shipping_state', 'shipping_city', 'shipping_district' ), true ) ) {
 			return 0;
 		}
-		$field_to_check = array(
-			"_{$type}_pok_{$field}", // > 3.8.0.
-			"_{$type}_{$field}_id",
-			"_{$type}_{$field}" // fallback.
-		);
-		foreach ( $field_to_check as $meta_key ) {
-			$id = get_post_meta( $order_id, $meta_key, true );
-			if ( ! empty( $id ) ) {
-				return 'country' !== $field ? intval( $id ) : $id;
-			}
+		$id = get_post_meta( $order_id, '_' . $type . '_id', true );
+		if ( '' === $id ) {
+			$id = get_post_meta( $order_id, '_' . $type, true );
 		}
-		return 0;
+		return ! in_array( $type, array( 'billing_country', 'shipping_country' ) ) ? intval( $id ) : $id;
 	}
 
 	/**
@@ -808,22 +784,15 @@ class POK_Helper {
 	 * @param  string  $type     Address type.
 	 * @return integer           Address id.
 	 */
-	public function get_address_id_from_user( $user_id = 0, $type = 'billing', $field = 'state' ) {
-		if ( ! in_array( $type, array( 'billing', 'shipping' ), true ) || ! in_array( $field, array( 'state', 'city', 'district' ), true ) ) {
+	public function get_address_id_from_user( $user_id = 0, $type = 'billing_state' ) {
+		if ( ! in_array( $type, array( 'billing_state', 'billing_city', 'billing_district', 'shipping_state', 'shipping_city', 'shipping_district' ), true ) ) {
 			return 0;
 		}
-		$field_to_check = array(
-			"{$type}_pok_{$field}", // > 3.8.0.
-			"{$type}_{$field}_id",
-			"{$type}_{$field}" // fallback.
-		);
-		foreach ( $field_to_check as $meta_key ) {
-			$id = get_user_meta( $user_id, $meta_key, true );
-			if ( ! empty( $id ) ) {
-				return intval( $id );
-			}
+		$id = get_user_meta( $user_id, $type . '_id', true );
+		if ( '' === $id ) {
+			$id = get_user_meta( $user_id, $type, true );
 		}
-		return 0;
+		return intval( $id );
 	}
 
 	/**

@@ -1,5 +1,5 @@
-#order_data .order_data_column ._billing_pok_district_field,
-#order_data .order_data_column ._shipping_pok_district_field {
+#order_data .order_data_column ._billing_district_field,
+#order_data .order_data_column ._shipping_district_field {
 	float: right;
 	clear: right;
 }
