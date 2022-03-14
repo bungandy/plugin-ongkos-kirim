@@ -32,24 +32,28 @@ class POK_Helper {
 				'sicepat'   => 'Sicepat',
 				'lion'		=> 'Lion Parcel',
 				'ninja'		=> 'Ninja Xpress',
+				'anteraja'	=> 'Anteraja',
 				'esl'       => 'ESL',
 				'ncs'       => 'NCS',
 				'pcp'       => 'PCP Express',
 				'rpx'       => 'RPX',
 				'pandu'     => 'Pandu Logistics',
 				'pahala'    => 'Pahala Express',
-				// 'cahaya'    => 'Cahaya Logistik', deprecated
+				'cahaya'    => 'Cahaya Logistik',
 				'sap'       => 'SAP Express',
 				'jet'       => 'JET Express',
-				// 'indah'     => 'Indah Cargo', deprecated
+				'indah'     => 'Indah Logistik Cargo',
 				'dse'       => '21 Express',
 				'slis'      => 'Solusi Express',
 				'expedito'  => 'Expedito',
 				'first'     => 'First Logistics',
 				'star'      => 'Star Cargo',
-				// 'nss'       => 'NSS Express', deprecated
+				'nss'       => 'NSS Express',
 				'idl'		=> 'IDL Cargo',
-				'rex'		=> 'REX'
+				'rex'		=> 'REX',
+				'atlas'		=> 'Atlas Express',
+				'ide'       => 'ID Express',
+				'sentral'   => 'Sentral Cargo'
 			)
 		);
 		if ( isset( $couriers[ $courier ] ) ) {
@@ -67,6 +71,8 @@ class POK_Helper {
 	public function get_courier_logo( $courier = '' ) {
 		if ( 'lion parcel' == $courier ) {
 			$courier = 'lion';
+		} elseif ( 'atlas express' == $courier ) {
+			$courier = 'atlas';
 		}
 		return apply_filters( 'pok_courier_logo_' . $courier, POK_PLUGIN_URL . '/assets/img/logo-' . $courier . '.png' );
 	}
@@ -131,17 +137,20 @@ class POK_Helper {
 	 * @return string Country id.
 	 */
 	public function get_country_session( $context = 'billing' ) {
-		$country = '';
-		if ( ! is_null( WC()->customer ) ) {
-			if ( 'billing' === $context ) {
+		$country      = '';
+
+		if ( class_exists( 'WC' ) && null !== WC()->customer ) {
+			if( 'billing' === $context ) {
 				$country = WC()->customer->get_billing_country();
 			} else {
 				$country = WC()->customer->get_shipping_country();
 			}
 		}
-		if ( empty( $country ) ) {
+
+		if( empty( $country ) ) {
 			$country = 'ID';
 		}
+
 		// add filter hook to force change country ability.
 		return apply_filters( 'pok_session_country', $country, $context );
 	}
@@ -271,7 +280,10 @@ class POK_Helper {
 	 * @return boolean Is active.
 	 */
 	public static function is_woocommerce_active() {
-		return in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', get_option( 'active_plugins' ) ), true );
+		if ( ! function_exists( 'is_plugin_active_for_network' ) ) {
+		    require_once( ABSPATH . '/wp-admin/includes/plugin.php' );
+		}
+		return in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', get_option( 'active_plugins' ) ), true ) || is_plugin_active_for_network( 'woocommerce/woocommerce.php' );
 	}
 
 	/**
@@ -300,7 +312,7 @@ class POK_Helper {
 	 * @return float           Product weight on kg.
 	 */
 	public function get_product_weight( $product ) {
-		if ( ! $product ) {
+		if ( ! $product || $product->is_virtual() ) {
 			return 0;
 		}
 		if ( 'yes' === $this->setting->get( 'enable_volume_calculation' ) && ! empty( $product->get_length() ) && ! empty( $product->get_width() ) && ! empty( $product->get_height() ) ) {
@@ -341,7 +353,7 @@ class POK_Helper {
 		} elseif ( 'floor' === $method ) {
 			$round = floor( $weight );
 		} elseif ( 'auto' === $method ) {
-			$tolerance = $this->setting->get( 'round_weight_tolerance' ) / 1000;
+			$tolerance = ( $this->setting->get( 'round_weight_tolerance' ) + 0.0001 ) / 1000;
 			$fraction = fmod( $weight, 1 );
 			if ( $fraction <= $tolerance ) {
 				$round = floor( $weight );
@@ -484,6 +496,14 @@ class POK_Helper {
 				} else {
 					$insurance = 0.003 * $total;
 				}
+				break;
+			case 'sicepat':
+				// https://web.facebook.com/sicepatekspresofficial/photos/biar-paket-kamu-makin-aman-saat-pengiriman-ada-baiknya-kamu-asuransikan-paket-ka/2498811827025189/?_rdc=1&_rdr
+				$insurance = 0.002 * $total;
+				break;
+			case 'lion':
+				// http://www.lionparcelsragen.com/tanyajawab
+				$insurance = 0.0015 * $total;
 				break;
 		}
 		return apply_filters( 'pok_set_insurance', round( $insurance ), $courier, $total );
@@ -763,15 +783,22 @@ class POK_Helper {
 	 * @param  string  $type     Address type.
 	 * @return integer           Address id.
 	 */
-	public function get_address_id_from_order( $order_id = 0, $type = 'billing_state' ) {
-		if ( ! in_array( $type, array( 'billing_country', 'billing_state', 'billing_city', 'billing_district', 'shipping_country', 'shipping_state', 'shipping_city', 'shipping_district' ), true ) ) {
+	public function get_address_id_from_order( $order_id = 0, $type = 'billing', $field = 'state' ) {
+		if ( ! in_array( $type, array( 'billing', 'shipping' ), true ) || ! in_array( $field, array( 'country', 'state', 'city', 'district' ), true ) ) {
 			return 0;
 		}
-		$id = get_post_meta( $order_id, '_' . $type . '_id', true );
-		if ( '' === $id ) {
-			$id = get_post_meta( $order_id, '_' . $type, true );
+		$field_to_check = array(
+			"_{$type}_pok_{$field}", // > 3.8.0.
+			"_{$type}_{$field}_id",
+			"_{$type}_{$field}" // fallback.
+		);
+		foreach ( $field_to_check as $meta_key ) {
+			$id = get_post_meta( $order_id, $meta_key, true );
+			if ( ! empty( $id ) ) {
+				return 'country' !== $field ? intval( $id ) : $id;
+			}
 		}
-		return ! in_array( $type, array( 'billing_country', 'shipping_country' ) ) ? intval( $id ) : $id;
+		return 0;
 	}
 
 	/**
@@ -781,15 +808,22 @@ class POK_Helper {
 	 * @param  string  $type     Address type.
 	 * @return integer           Address id.
 	 */
-	public function get_address_id_from_user( $user_id = 0, $type = 'billing_state' ) {
-		if ( ! in_array( $type, array( 'billing_state', 'billing_city', 'billing_district', 'shipping_state', 'shipping_city', 'shipping_district' ), true ) ) {
+	public function get_address_id_from_user( $user_id = 0, $type = 'billing', $field = 'state' ) {
+		if ( ! in_array( $type, array( 'billing', 'shipping' ), true ) || ! in_array( $field, array( 'state', 'city', 'district' ), true ) ) {
 			return 0;
 		}
-		$id = get_user_meta( $user_id, $type . '_id', true );
-		if ( '' === $id ) {
-			$id = get_user_meta( $user_id, $type, true );
+		$field_to_check = array(
+			"{$type}_pok_{$field}", // > 3.8.0.
+			"{$type}_{$field}_id",
+			"{$type}_{$field}" // fallback.
+		);
+		foreach ( $field_to_check as $meta_key ) {
+			$id = get_user_meta( $user_id, $meta_key, true );
+			if ( ! empty( $id ) ) {
+				return intval( $id );
+			}
 		}
-		return intval( $id );
+		return 0;
 	}
 
 	/**
@@ -898,6 +932,66 @@ class POK_Helper {
 	 */
 	public function is_use_simple_address_field() {
 		return ( 'nusantara' === $this->setting->get( 'base_api' ) && 'yes' === $this->setting->get( 'use_simple_address_field' ) );
+	}
+
+	/**
+	 * Check if override to indonesia
+	 * @return boolean
+	 */
+	public function is_override_to_indonesia() {
+		$override = $this->setting->get( 'override_default_location_to_indonesia' );
+		if( empty( $override ) || 'yes' === $override ) {
+			return true;
+		}
+		return false;
+	}
+
+	/**
+	 * Map woocommerce state to ongkir state format
+	 * @param $state string
+	 * @return $states array
+	 */
+	public function map_ongkir_states( $state = '' ) {
+		$states = array(
+			'BA' => '1',
+			'BB' => '2',
+			'BT' => '3',
+			'BE' => '4',
+			'YO' => '5',
+			'JK' => '6',
+			'GO' => '7',
+			'JA' => '8',
+			'JB' => '9',
+			'JT' => '10',
+			'JI' => '11',
+			'KB' => '12',
+			'KS' => '13',
+			'KT' => '14',
+			'KI' => '15',
+			'KU' => '16',
+			'KR' => '17',
+			'LA' => '18',
+			'MA' => '19',
+			'MU' => '20',
+			'AC' => '21',
+			'NB' => '22',
+			'NT' => '23',
+			'PA' => '24',
+			'PB' => '25',
+			'RI' => '26',
+			'SR' => '27',
+			'SN' => '28',
+			'ST' => '29',
+			'SG' => '30',
+			'SA' => '31',
+			'SB' => '32',
+			'SS' => '33',
+			'SU' => '34',
+		);
+		if( ! empty( $state ) ) {
+			$states = isset( $states[$state] ) ? $states[$state] : false;
+		}
+		return $states;
 	}
 
 }

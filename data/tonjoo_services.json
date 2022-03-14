@@ -117,6 +117,14 @@
     "jsd": {
       "long": "JSD (Same Day Service)",
       "short": "JSD"
+    },
+    "jnd": {
+      "long": "JND (Next Day Service)",
+      "short": "JND"
+    },
+    "eco": {
+      "long": "ECO",
+      "short": "ECO"
     }
   },
   "wahana": {
@@ -146,12 +154,12 @@
       "long": "BEST (Besok Sampai Tujuan)",
       "short": "BEST"
     },
-    "cargo": {
-      "long": "Cargo",
-      "short": "Cargo"
+    "gokil": {
+      "long": "GOKIL (Cargo Kilat)",
+      "short": "GOKIL"
     },
     "siunt": {
-      "long": "SIUNT",
+      "long": "SIUNT (Siuntung)",
       "short": "SIUNT"
     }
   },
@@ -167,6 +175,30 @@
     "landpack": {
       "long": "LANDPACK (Kargo Darat)",
       "short": "LANDPACK"
+    },
+    "bigpack": {
+      "long": "BIGPACK (Kargo Darat)",
+      "short": "BIGPACK"
+    }
+  },
+  "atlas": {
+    "udara": {
+      "long": "Udara",
+      "short": "Udara"
+    }
+  },
+  "anteraja": {
+    "regular": {
+      "long": "Regular",
+      "short": "Regular"
+    },
+    "next-day": {
+      "long": "Next Day",
+      "short": "Next Day"
+    },
+    "same-day": {
+      "long": "Same Day",
+      "short": "Same Day"
     }
   }
 }

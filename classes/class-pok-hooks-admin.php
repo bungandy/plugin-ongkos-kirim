@@ -33,10 +33,6 @@ class POK_Hooks_Admin {
 			}
 			add_filter( 'woocommerce_shipping_address_map_url_parts', array( $this, 'change_address_map_url' ), 10, 2 );
 
-			// user page.
-			add_filter( 'woocommerce_customer_meta_fields', array( $this, 'custom_user_address_fields' ) );
-			add_action( 'profile_update', array( $this, 'save_user_address' ), 10, 2 );
-
 			// report page.
 			add_filter( 'woocommerce_admin_reports', array( $this, 'shipping_report' ) );
 
@@ -49,212 +45,6 @@ class POK_Hooks_Admin {
 
 			// Let 3rd parties unhook the above via this hook.
 			do_action( 'pok_hooks_admin', $this );
-		}
-	}
-
-	/**
-	 * Custom address fields on edit user
-	 *
-	 * @param  array $fields Address fields.
-	 * @return array         Address fields.
-	 */
-	public function custom_user_address_fields( $fields ) {
-		$screen = get_current_screen();
-		if ( 'profile' === $screen->base ) {
-			$user_id = get_current_user_id();
-		} else {
-			$user_id = isset( $_GET['user_id'] ) ? intval( $_GET['user_id'] ) : 0; // WPCS: Input var okay, CSRF okay.
-		}
-		$billing_country    = get_user_meta( $user_id, 'billing_country', true );
-		$billing_state      = $this->helper->get_address_id_from_user( $user_id, 'billing_state' );
-		$billing_city       = $this->helper->get_address_id_from_user( $user_id, 'billing_city' );
-		$shipping_country   = get_user_meta( $user_id, 'shipping_country', true );
-		$shipping_state     = $this->helper->get_address_id_from_user( $user_id, 'shipping_state' );
-		$shipping_city      = $this->helper->get_address_id_from_user( $user_id, 'shipping_city' );
-		$provinces          = $this->core->get_province();
-		$billing_cities     = ( $cities = $this->core->get_city( $billing_state ) ) ? $cities : array();
-		$shipping_cities    = ( $cities = $this->core->get_city( $shipping_state ) ) ? $cities : array();
-		$billing_districts  = ( $districts = $this->core->get_district( $billing_city ) ) ? $districts : array();
-		$shipping_districts = ( $districts = $this->core->get_district( $shipping_city ) ) ? $districts : array();
-		if ( 'ID' === $billing_country ) {
-			$custom_fields['billing'] = array(
-				'title'  => __( 'Customer billing address', 'pok' ),
-				'fields' => array(
-					'billing_first_name' => array(
-						'label'       => __( 'First name', 'pok' ),
-						'description' => '',
-					),
-					'billing_last_name'  => array(
-						'label'       => __( 'Last name', 'pok' ),
-						'description' => '',
-					),
-					'billing_company'    => array(
-						'label'       => __( 'Company', 'pok' ),
-						'description' => '',
-					),
-					'billing_address_1'  => array(
-						'label'       => __( 'Address line 1', 'pok' ),
-						'description' => '',
-					),
-					'billing_address_2'  => array(
-						'label'       => __( 'Address line 2', 'pok' ),
-						'description' => '',
-					),
-					'billing_country' => array(
-						'label'       => __( 'Country', 'pok' ),
-						'description' => '',
-						'class'       => 'js_field-country',
-						'type'        => 'select',
-						'options'     => array( __( 'Select a country&hellip;', 'pok' ) ) + WC()->countries->get_allowed_countries(),
-					),
-					'billing_state'   => array(
-						'label'       => __( 'Province', 'pok' ),
-						'description' => '',
-						'class'       => 'select select2',
-						'type'        => 'select',
-						'options'     => array( __( 'Select Province', 'pok' ) ) + $provinces,
-					),
-					'billing_city'    => array(
-						'label'       => __( 'City', 'pok' ),
-						'type'        => 'select',
-						'class'       => 'select select2',
-						'options'     => array( __( 'Select City', 'pok' ) ) + $billing_cities,
-						'description' => '',
-					),
-					'billing_district'    => array(
-						'label'       => __( 'District', 'pok' ),
-						'type'        => 'select',
-						'class'       => 'select select2',
-						'options'     => array( __( 'Select District', 'pok' ) ) + $billing_districts,
-						'description' => '',
-					),
-					'billing_postcode'   => array(
-						'label'       => __( 'Postcode / ZIP', 'pok' ),
-						'description' => '',
-					),
-					'billing_phone'      => array(
-						'label'       => __( 'Phone', 'pok' ),
-						'description' => '',
-					),
-					'billing_email'      => array(
-						'label'       => __( 'Email address', 'pok' ),
-						'description' => '',
-					),
-				),
-			);
-			if ( 'default' === $this->helper->get_license_type() ) {
-				unset( $custom_fields['billing']['district'] );
-			}
-		} else {
-			$custom_fields['billing'] = $fields['billing'];
-		}
-		if ( 'ID' === $shipping_country ) {
-			$custom_fields['shipping'] = array(
-				'title'  => __( 'Customer shipping address', 'pok' ),
-				'fields' => array(
-					'shipping_first_name' => array(
-						'label'       => __( 'First name', 'pok' ),
-						'description' => '',
-					),
-					'shipping_last_name'  => array(
-						'label'       => __( 'Last name', 'pok' ),
-						'description' => '',
-					),
-					'shipping_company'    => array(
-						'label'       => __( 'Company', 'pok' ),
-						'description' => '',
-					),
-					'shipping_address_1'  => array(
-						'label'       => __( 'Address line 1', 'pok' ),
-						'description' => '',
-					),
-					'shipping_address_2'  => array(
-						'label'       => __( 'Address line 2', 'pok' ),
-						'description' => '',
-					),
-					'shipping_country'    => array(
-						'label'       => __( 'Country', 'pok' ),
-						'description' => '',
-						'class'       => 'js_field-country',
-						'type'        => 'select',
-						'options'     => array( __( 'Select a country&hellip;', 'pok' ) ) + WC()->countries->get_allowed_countries(),
-					),
-					'shipping_state'      => array(
-						'label'       => __( 'State / County', 'pok' ),
-						'description' => '',
-						'class'       => 'select select2',
-						'type'        => 'select',
-						'options'     => array( __( 'Select Province', 'pok' ) ) + $provinces,
-					),
-					'shipping_city'    => array(
-						'label'       => __( 'City', 'pok' ),
-						'type'        => 'select',
-						'class'       => 'select select2',
-						'options'     => array( __( 'Select City', 'pok' ) ) + $billing_cities,
-						'description' => '',
-					),
-					'shipping_district'    => array(
-						'label'       => __( 'District', 'pok' ),
-						'type'        => 'select',
-						'class'       => 'select select2',
-						'options'     => array( __( 'Select District', 'pok' ) ) + $billing_districts,
-						'description' => '',
-					),
-					'shipping_postcode'   => array(
-						'label'       => __( 'Postcode / ZIP', 'pok' ),
-						'description' => '',
-					),
-				),
-			);
-			if ( 'default' === $this->helper->get_license_type() ) {
-				unset( $custom_fields['shipping']['district'] );
-			}
-		} else {
-			$custom_fields['shipping'] = $fields['shipping'];
-		}
-		return $custom_fields;
-	}
-
-	/**
-	 * Save user address data
-	 *
-	 * @param  integer $user_id       User ID.
-	 * @param  array   $old_user_data Old user data.
-	 */
-	public function save_user_address( $user_id, $old_user_data ) {
-		if ( isset( $_POST['billing_country'] ) && 'ID' === $_POST['billing_country'] ) {
-			if ( isset( $_POST['billing_state'] ) ) {
-				$province = $this->core->get_single_province( intval( $_POST['billing_state'] ) );
-				update_user_meta( $user_id, 'billing_state', ( isset( $province ) && ! empty( $province ) ? $province : $_POST['billing_state'] ) );
-				update_user_meta( $user_id, 'billing_state_id', intval( $_POST['billing_state'] ) );
-			}
-			if ( isset( $_POST['billing_city'] ) ) {
-				$city = $this->core->get_single_city_without_province( intval( $_POST['billing_city'] ) );
-				update_user_meta( $user_id, 'billing_city', ( isset( $city ) && ! empty( $city ) ? $city : $_POST['billing_city'] ) );
-				update_user_meta( $user_id, 'billing_city_id', intval( $_POST['billing_city'] ) );
-				if ( isset( $_POST['billing_district'] ) ) {
-					$district = $this->core->get_single_district( intval( $_POST['billing_city'] ), intval( $_POST['billing_district'] ) );
-					update_user_meta( $user_id, 'billing_district', ( isset( $district ) && ! empty( $district ) ? $district : $_POST['billing_district'] ) );
-					update_user_meta( $user_id, 'billing_district_id', intval( $_POST['billing_district'] ) );
-				}
-			}
-		}
-		if ( isset( $_POST['billing_country'] ) && 'ID' === $_POST['shipping_country'] ) {
-			if ( isset( $_POST['shipping_state'] ) ) {
-				$province = $this->core->get_single_province( intval( $_POST['shipping_state'] ) );
-				update_user_meta( $user_id, 'shipping_state', ( isset( $province ) && ! empty( $province ) ? $province : $_POST['shipping_state'] ) );
-				update_user_meta( $user_id, 'shipping_state_id', intval( $_POST['shipping_state'] ) );
-			}
-			if ( isset( $_POST['shipping_city'] ) ) {
-				$city = $this->core->get_single_city_without_province( intval( $_POST['shipping_city'] ) );
-				update_user_meta( $user_id, 'shipping_city', ( isset( $city ) && ! empty( $city ) ? $city : $_POST['shipping_city'] ) );
-				update_user_meta( $user_id, 'shipping_city_id', intval( $_POST['shipping_city'] ) );
-				if ( isset( $_POST['shipping_district'] ) ) {
-					$district = $this->core->get_single_district( intval( $_POST['shipping_city'] ), intval( $_POST['shipping_district'] ) );
-					update_user_meta( $user_id, 'shipping_district', ( isset( $district ) && ! empty( $district ) ? $district : $_POST['shipping_district'] ) );
-					update_user_meta( $user_id, 'shipping_district_id', intval( $_POST['shipping_district'] ) );
-				}
-			}
 		}
 	}
 
@@ -288,63 +78,45 @@ class POK_Hooks_Admin {
 	private function custom_admin_fields( $context = 'billing', $fields ) {
 		global $thepostid, $post;
 		$thepostid = empty( $thepostid ) ? $post->ID : $thepostid;
-		$custom_fields = array(
-			'first_name'    => $fields['first_name'],
-			'last_name'     => $fields['last_name'],
-			'company'       => $fields['company'],
-			'country'       => $fields['country'],
-			'state'         => array(
-				'label' => __( 'State', 'pok' ),
-				'class' => 'js_field-state select',
-				'show'  => false,
-			),
-			'city'          => array(
-				'label'     => __( 'City', 'pok' ),
-				'class'     => 'select select2',
-				'type'      => 'select',
-				'options'   => array( '' => __( 'Select City', 'pok' ) ),
-				'show'      => false,
-			),
-			'district'      => array(
-				'label'     => __( 'District', 'pok' ),
-				'class'     => 'select select2',
-				'type'      => 'select',
-				'options'   => array( '' => __( 'Select District', 'pok' ) ),
-				'show'      => false,
-			),
-			'address_1'     => $fields['address_1'],
-			'address_2'     => $fields['address_2'],
-			'postcode'      => array(
-				'label' => __( 'Postcode', 'pok' ),
-				'show'  => false,
-			),
-		);
-		if ( 'default' === $this->helper->get_license_type() ) {
-			unset( $custom_fields['district'] );
+		$custom_fields = array();
+		foreach ( $fields as $key => $value ) {
+			if ( 'city' === $key ) {
+				$custom_fields['country']  = $fields['country'];
+				$custom_fields['state']    = $fields['state'];
+				$custom_fields['city']     = $fields['city'];
+				$custom_fields['pok_city'] = array(
+					'label'   => __( 'City', 'pok' ),
+					'class'   => 'select select2',
+					'type'    => 'select',
+					'options' => array( '' => __( 'Select City', 'pok' ) ),
+					'show'    => false,
+				);
+				if ( 'pro' === $this->helper->get_license_type() ) {
+					$custom_fields['pok_district'] = array(
+						'label'   => __( 'District', 'pok' ),
+						'class'   => 'select select2',
+						'type'    => 'select',
+						'options' => array( '' => __( 'Select District', 'pok' ) ),
+						'show'    => false,
+					);
+				}
+			} elseif ( 'country' !== $key && 'state' !== $key ) {
+				$custom_fields[ $key ] = $value;
+			}
 		}
-		if ( 'billing' === $context ) {
-			$custom_fields['phone'] = $fields['phone'];
-			$custom_fields['email'] = $fields['email'];
-		} else {
-			$custom_fields['phone'] = array(
-				'label' => __( 'Phone', 'woocommerce' ),
-			);
-			$custom_fields['email'] = array(
-				'label' => __( 'Email address', 'woocommerce' ),
-			);
-		}
-		$state = $this->helper->get_address_id_from_order( $thepostid, $context . '_state' );
+		$state = $this->helper->get_address_id_from_order( $thepostid, $context, 'state' );
+		$custom_fields['state']['value'] = $state;
 		$cities = $this->core->get_city( $state );
 		if ( is_array( $cities ) ) {
 			foreach ( $cities as $city_id => $city ) {
-				$custom_fields['city']['options'][ $city_id ] = $city;
+				$custom_fields['pok_city']['options'][ $city_id ] = $city;
 			}
 		}
-		$city = $this->helper->get_address_id_from_order( $thepostid, $context . '_city' );
-		$custom_fields['city']['value'] = $city;
+		$city = $this->helper->get_address_id_from_order( $thepostid, $context, 'city' );
+		$custom_fields['pok_city']['value'] = $city;
 		$districts = $this->core->get_district( $city );
 		if ( is_array( $districts ) ) {
-			$custom_fields['district']['options'] = $districts;
+			$custom_fields['pok_district']['options'] = $districts;
 		}
 		return $custom_fields;
 	}
@@ -363,6 +135,8 @@ class POK_Hooks_Admin {
 			$localize = array(
 				'labelFailedCity'       => __( 'Failed to load city list. Try again?', 'pok' ),
 				'labelFailedDistrict'   => __( 'Failed to load district list. Try again?', 'pok' ),
+				'labelSelectState'      => __( 'Select State', 'pok' ),
+				'labelLoadingState'     => __( 'Loading state options...', 'pok' ),
 				'labelSelectCity'       => __( 'Select City', 'pok' ),
 				'labelLoadingCity'      => __( 'Loading city options...', 'pok' ),
 				'labelSelectDistrict'   => __( 'Select District', 'pok' ),
@@ -371,35 +145,39 @@ class POK_Hooks_Admin {
 				'labelNoCity'           => __( "You need to set customer's shipping city to get the costs", 'pok' ),
 				'labelSelectShipping'   => __( 'Select shipping service', 'pok' ),
 				'labelOnlyIndonesia'    => __( 'Currently this feature only support shipping to Indonesia.', 'pok' ),
-				'billing_country'       => $this->helper->get_address_id_from_order( $thepostid, 'billing_country' ),
-				'shipping_country'      => $this->helper->get_address_id_from_order( $thepostid, 'shipping_country' ),
-				'billing_state'         => $this->helper->get_address_id_from_order( $thepostid, 'billing_state' ),
-				'shipping_state'        => $this->helper->get_address_id_from_order( $thepostid, 'shipping_state' ),
-				'billing_city'          => $this->helper->get_address_id_from_order( $thepostid, 'billing_city' ),
-				'shipping_city'         => $this->helper->get_address_id_from_order( $thepostid, 'shipping_city' ),
-				'billing_district'      => $this->helper->get_address_id_from_order( $thepostid, 'billing_district' ),
-				'shipping_district'     => $this->helper->get_address_id_from_order( $thepostid, 'shipping_district' ),
+				'billing'               => array(
+					'country'  => $this->helper->get_address_id_from_order( $thepostid, 'billing', 'country' ),
+					'state'    => $this->helper->get_address_id_from_order( $thepostid, 'billing', 'state' ),
+					'city'     => $this->helper->get_address_id_from_order( $thepostid, 'billing', 'city' ),
+					'district' => $this->helper->get_address_id_from_order( $thepostid, 'billing', 'district' ),
+				),
+				'shipping'              => array(
+					'country'  => $this->helper->get_address_id_from_order( $thepostid, 'shipping', 'country' ),
+					'state'    => $this->helper->get_address_id_from_order( $thepostid, 'shipping', 'state' ),
+					'city'     => $this->helper->get_address_id_from_order( $thepostid, 'shipping', 'city' ),
+					'district' => $this->helper->get_address_id_from_order( $thepostid, 'shipping', 'district' ),
+				),
 				'nonce_change_country'  => wp_create_nonce( 'change_country' ),
 				'nonce_get_list_city'   => wp_create_nonce( 'get_list_city' ),
 				'nonce_get_list_district' => wp_create_nonce( 'get_list_district' ),
 				'enableDistrict'        => ( 'pro' === $this->helper->get_license_type() ? true : false ),
 			);
-			if ( 'ID' === $localize['billing_country'] ) {
-				$localize['billing_state_options'] = $this->core->get_province();
-				if ( 0 !== intval( $localize['billing_state'] ) ) {
-					$localize['billing_city_options'] = $this->core->get_city( intval( $localize['billing_state'] ) );
+			if ( 'ID' === $localize['billing']['country'] ) {
+				$localize['billing']['state_options'] = $this->core->get_province();
+				if ( 0 !== intval( $localize['billing']['state'] ) ) {
+					$localize['billing']['city_options'] = $this->core->get_city( intval( $localize['billing']['state'] ) );
 				}
-				if ( $localize['enableDistrict'] && 0 !== intval( $localize['billing_city'] ) ) {
-					$localize['billing_district_options'] = $this->core->get_district( intval( $localize['billing_city'] ) );
+				if ( $localize['enableDistrict'] && 0 !== intval( $localize['billing']['city'] ) ) {
+					$localize['billing']['district_options'] = $this->core->get_district( intval( $localize['billing']['city'] ) );
 				}
 			}
-			if ( 'ID' === $localize['shipping_country'] ) {
-				$localize['shipping_state_options'] = $this->core->get_province();
-				if ( 0 !== intval( $localize['shipping_state'] ) ) {
-					$localize['shipping_city_options'] = $this->core->get_city( intval( $localize['shipping_state'] ) );
+			if ( 'ID' === $localize['shipping']['country'] ) {
+				$localize['shipping']['state_options'] = $this->core->get_province();
+				if ( 0 !== intval( $localize['shipping']['state'] ) ) {
+					$localize['shipping']['city_options'] = $this->core->get_city( intval( $localize['shipping']['state'] ) );
 				}
-				if ( $localize['enableDistrict'] && 0 !== intval( $localize['shipping_city'] ) ) {
-					$localize['shipping_district_options'] = $this->core->get_district( intval( $localize['shipping_city'] ) );
+				if ( $localize['enableDistrict'] && 0 !== intval( $localize['shipping']['city'] ) ) {
+					$localize['shipping']['district_options'] = $this->core->get_district( intval( $localize['shipping']['city'] ) );
 				}
 			}
 			wp_localize_script( 'pok-order', 'pok_order_data', $localize );
@@ -409,35 +187,6 @@ class POK_Hooks_Admin {
 					'set_order_shipping'    => wp_create_nonce( 'set_order_shipping' ),
 				)
 			);
-		} elseif ( 'profile' === $screen->base || 'user-edit' === $screen->base ) {
-			if ( 'profile' === $screen->base ) {
-				$user_id = get_current_user_id();
-			} else {
-				$user_id = intval( $_GET['user_id'] );
-			}
-			wp_enqueue_style( 'select2', POK_PLUGIN_URL . '/assets/css/select2.min.css', array() );
-			wp_enqueue_script( 'pok-profile', POK_PLUGIN_URL . '/assets/js/profile.js', array( 'jquery', 'select2' ), POK_VERSION, true );
-			$localize = array(
-				'billing_country'       => get_user_meta( $user_id, 'billing_country', true ),
-				'shipping_country'      => get_user_meta( $user_id, 'shipping_country', true ),
-				'billing_state'         => $this->helper->get_address_id_from_user( $user_id, 'billing_state' ),
-				'shipping_state'        => $this->helper->get_address_id_from_user( $user_id, 'shipping_state' ),
-				'billing_city'          => $this->helper->get_address_id_from_user( $user_id, 'billing_city' ),
-				'shipping_city'         => $this->helper->get_address_id_from_user( $user_id, 'shipping_city' ),
-				'billing_district'      => $this->helper->get_address_id_from_user( $user_id, 'billing_district' ),
-				'shipping_district'     => $this->helper->get_address_id_from_user( $user_id, 'shipping_district' ),
-				'labelFailedCity'       => __( 'Failed to load city list. Try again?', 'pok' ),
-				'labelFailedDistrict'   => __( 'Failed to load district list. Try again?', 'pok' ),
-				'labelSelectCity'       => __( 'Select City', 'pok' ),
-				'labelLoadingCity'      => __( 'Loading city options...', 'pok' ),
-				'labelSelectDistrict'   => __( 'Select District', 'pok' ),
-				'labelLoadingDistrict'  => __( 'Loading district options...', 'pok' ),
-				'nonce_change_country'  => wp_create_nonce( 'change_country' ),
-				'nonce_get_list_city'   => wp_create_nonce( 'get_list_city' ),
-				'nonce_get_list_district' => wp_create_nonce( 'get_list_district' ),
-				'enableDistrict'        => ( 'pro' === $this->helper->get_license_type() ? true : false ),
-			);
-			wp_localize_script( 'pok-profile', 'pok_profile_data', $localize );
 		} elseif ( 'shop_coupon' === $screen->id ) {
 			wp_enqueue_style( 'select2', POK_PLUGIN_URL . '/assets/css/select2.min.css', array() );
 			wp_enqueue_style( 'pok-coupon', POK_PLUGIN_URL . '/assets/css/coupon.css', array( 'select2', 'woocommerce_admin_styles' ), POK_VERSION );
@@ -618,19 +367,19 @@ class POK_Hooks_Admin {
 	 * @return array            Customer data.
 	 */
 	public function get_district_from_meta( $data, $customer, $user_id ) {
-		$data['billing']['state']       = $this->helper->get_address_id_from_user( $user_id, 'billing_state' );
-		$data['billing']['city']        = $this->helper->get_address_id_from_user( $user_id, 'billing_city' );
-		$data['billing']['district']    = $this->helper->get_address_id_from_user( $user_id, 'billing_district' );
-		$data['shipping']['state']      = $this->helper->get_address_id_from_user( $user_id, 'shipping_state' );
-		$data['shipping']['city']       = $this->helper->get_address_id_from_user( $user_id, 'shipping_city' );
-		$data['shipping']['district']   = $this->helper->get_address_id_from_user( $user_id, 'shipping_district' );
+		$data['billing']['state']         = $this->helper->get_address_id_from_user( $user_id, 'billing', 'state' );
+		$data['billing']['pok_city']      = $this->helper->get_address_id_from_user( $user_id, 'billing', 'city' );
+		$data['billing']['pok_district']  = $this->helper->get_address_id_from_user( $user_id, 'billing', 'district' );
+		$data['shipping']['state']        = $this->helper->get_address_id_from_user( $user_id, 'shipping', 'state' );
+		$data['shipping']['pok_city']     = $this->helper->get_address_id_from_user( $user_id, 'shipping', 'city' );
+		$data['shipping']['pok_district'] = $this->helper->get_address_id_from_user( $user_id, 'shipping', 'district' );
 		if ( 'ID' === $data['billing']['country'] ) {
 			$data['billing']['state_options'] = $this->core->get_province();
 			if ( 0 !== intval( $data['billing']['state'] ) ) {
 				$data['billing']['city_options'] = $this->core->get_city( intval( $data['billing']['state'] ) );
 			}
-			if ( 'pro' === $this->helper->get_license_type() && 0 !== intval( $data['billing']['city'] ) ) {
-				$data['billing']['district_options'] = $this->core->get_district( intval( $data['billing']['city'] ) );
+			if ( 'pro' === $this->helper->get_license_type() && 0 !== intval( $data['billing']['pok_city'] ) ) {
+				$data['billing']['district_options'] = $this->core->get_district( intval( $data['billing']['pok_city'] ) );
 			}
 		}
 		if ( 'ID' === $data['shipping']['country'] ) {
@@ -638,8 +387,8 @@ class POK_Hooks_Admin {
 			if ( 0 !== intval( $data['shipping']['state'] ) ) {
 				$data['shipping']['city_options'] = $this->core->get_city( intval( $data['shipping']['state'] ) );
 			}
-			if ( 'pro' === $this->helper->get_license_type() && 0 !== intval( $data['shipping']['city'] ) ) {
-				$data['shipping']['district_options'] = $this->core->get_district( intval( $data['shipping']['city'] ) );
+			if ( 'pro' === $this->helper->get_license_type() && 0 !== intval( $data['shipping']['pok_city'] ) ) {
+				$data['shipping']['district_options'] = $this->core->get_district( intval( $data['shipping']['pok_city'] ) );
 			}
 		}
 		return $data;
@@ -657,21 +406,21 @@ class POK_Hooks_Admin {
 				if ( 0 !== intval( $_POST['_billing_state'] ) ) { // WPCS: Input var okay. CSRF okay.
 					$province = $this->core->get_single_province( intval( $_POST['_billing_state'] ) ); // WPCS: Input var okay. CSRF okay.
 					update_post_meta( $order_id, '_billing_state', ( isset( $province ) && ! empty( $province ) ? $province : sanitize_text_field( wp_unslash( $_POST['_billing_state'] ) ) ) ); // WPCS: Input var okay. CSRF okay.
-					update_post_meta( $order_id, '_billing_state_id', sanitize_text_field( wp_unslash( $_POST['_billing_state'] ) ) ); // WPCS: Input var okay. CSRF okay.
+					update_post_meta( $order_id, '_billing_pok_state', sanitize_text_field( wp_unslash( $_POST['_billing_state'] ) ) ); // WPCS: Input var okay. CSRF okay.
 				}
 			}
-			if ( isset( $_POST['_billing_city'] ) ) { // WPCS: Input var okay. CSRF okay.
-				if ( 0 !== intval( $_POST['_billing_city'] ) ) { // WPCS: Input var okay. CSRF okay.
-					$city = $this->core->get_single_city_without_province( intval( $_POST['_billing_city'] ) ); // WPCS: Input var okay. CSRF okay.
-					update_post_meta( $order_id, '_billing_city', ( isset( $city ) && ! empty( $city ) ? $city : sanitize_text_field( wp_unslash( $_POST['_billing_city'] ) ) ) ); // WPCS: Input var okay. CSRF okay.
-					update_post_meta( $order_id, '_billing_city_id', sanitize_text_field( wp_unslash( $_POST['_billing_city'] ) ) ); // WPCS: Input var okay. CSRF okay.
+			if ( isset( $_POST['_billing_pok_city'] ) ) { // WPCS: Input var okay. CSRF okay.
+				if ( 0 !== intval( $_POST['_billing_pok_city'] ) ) { // WPCS: Input var okay. CSRF okay.
+					$city = $this->core->get_single_city_without_province( intval( $_POST['_billing_pok_city'] ) ); // WPCS: Input var okay. CSRF okay.
+					update_post_meta( $order_id, '_billing_city', ( isset( $city ) && ! empty( $city ) ? $city : sanitize_text_field( wp_unslash( $_POST['_billing_pok_city'] ) ) ) ); // WPCS: Input var okay. CSRF okay.
+					update_post_meta( $order_id, '_billing_pok_city', sanitize_text_field( wp_unslash( $_POST['_billing_pok_city'] ) ) ); // WPCS: Input var okay. CSRF okay.
 				}
 			}
-			if ( isset( $_POST['_billing_district'] ) ) { // WPCS: Input var okay. CSRF okay.
-				if ( 0 !== intval( $_POST['_billing_district'] ) ) { // WPCS: Input var okay. CSRF okay.
-					$district = $this->core->get_single_district( intval( $_POST['_billing_city'] ), intval( $_POST['_billing_district'] ) ); // WPCS: Input var okay. CSRF okay.
-					update_post_meta( $order_id, '_billing_district', ( isset( $district ) && ! empty( $district ) ? $district : sanitize_text_field( wp_unslash( $_POST['_billing_district'] ) ) ) ); // WPCS: Input var okay. CSRF okay.
-					update_post_meta( $order_id, '_billing_district_id', sanitize_text_field( wp_unslash( $_POST['_billing_district'] ) ) ); // WPCS: Input var okay. CSRF okay.
+			if ( isset( $_POST['_billing_pok_district'] ) ) { // WPCS: Input var okay. CSRF okay.
+				if ( 0 !== intval( $_POST['_billing_pok_district'] ) ) { // WPCS: Input var okay. CSRF okay.
+					$district = $this->core->get_single_district( intval( $_POST['_billing_pok_city'] ), intval( $_POST['_billing_pok_district'] ) ); // WPCS: Input var okay. CSRF okay.
+					update_post_meta( $order_id, '_billing_district', ( isset( $district ) && ! empty( $district ) ? $district : sanitize_text_field( wp_unslash( $_POST['_billing_pok_district'] ) ) ) ); // WPCS: Input var okay. CSRF okay.
+					update_post_meta( $order_id, '_billing_pok_district', sanitize_text_field( wp_unslash( $_POST['_billing_pok_district'] ) ) ); // WPCS: Input var okay. CSRF okay.
 				}
 			}
 		}
@@ -680,21 +429,21 @@ class POK_Hooks_Admin {
 				if ( 0 !== intval( $_POST['_shipping_state'] ) ) { // WPCS: Input var okay. CSRF okay.
 					$province = $this->core->get_single_province( intval( $_POST['_shipping_state'] ) ); // WPCS: Input var okay. CSRF okay.
 					update_post_meta( $order_id, '_shipping_state', ( isset( $province ) && ! empty( $province ) ? $province : sanitize_text_field( wp_unslash( $_POST['_shipping_state'] ) ) ) ); // WPCS: Input var okay. CSRF okay.
-					update_post_meta( $order_id, '_shipping_state_id', sanitize_text_field( wp_unslash( $_POST['_shipping_state'] ) ) ); // WPCS: Input var okay. CSRF okay.
+					update_post_meta( $order_id, '_shipping_pok_state', sanitize_text_field( wp_unslash( $_POST['_shipping_state'] ) ) ); // WPCS: Input var okay. CSRF okay.
 				}
 			}
-			if ( isset( $_POST['_shipping_city'] ) ) { // WPCS: Input var okay. CSRF okay.
-				if ( 0 !== intval( $_POST['_shipping_city'] ) ) { // WPCS: Input var okay. CSRF okay.
-					$city = $this->core->get_single_city_without_province( intval( $_POST['_shipping_city'] ) ); // WPCS: Input var okay. CSRF okay.
-					update_post_meta( $order_id, '_shipping_city', ( isset( $city ) && ! empty( $city ) ? $city : sanitize_text_field( wp_unslash( $_POST['_shipping_city'] ) ) ) ); // WPCS: Input var okay. CSRF okay.
-					update_post_meta( $order_id, '_shipping_city_id', sanitize_text_field( wp_unslash( $_POST['_shipping_city'] ) ) ); // WPCS: Input var okay. CSRF okay.
+			if ( isset( $_POST['_shipping_pok_city'] ) ) { // WPCS: Input var okay. CSRF okay.
+				if ( 0 !== intval( $_POST['_shipping_pok_city'] ) ) { // WPCS: Input var okay. CSRF okay.
+					$city = $this->core->get_single_city_without_province( intval( $_POST['_shipping_pok_city'] ) ); // WPCS: Input var okay. CSRF okay.
+					update_post_meta( $order_id, '_shipping_city', ( isset( $city ) && ! empty( $city ) ? $city : sanitize_text_field( wp_unslash( $_POST['_shipping_pok_city'] ) ) ) ); // WPCS: Input var okay. CSRF okay.
+					update_post_meta( $order_id, '_shipping_pok_city', sanitize_text_field( wp_unslash( $_POST['_shipping_pok_city'] ) ) ); // WPCS: Input var okay. CSRF okay.
 				}
 			}
-			if ( isset( $_POST['_shipping_district'] ) ) { // WPCS: Input var okay. CSRF okay.
-				if ( 0 !== intval( $_POST['_shipping_district'] ) ) { // WPCS: Input var okay. CSRF okay.
-					$district = $this->core->get_single_district( intval( $_POST['_shipping_city'] ), intval( $_POST['_shipping_district'] ) ); // WPCS: Input var okay. CSRF okay.
-					update_post_meta( $order_id, '_shipping_district', ( isset( $district ) && ! empty( $district ) ? $district : sanitize_text_field( wp_unslash( $_POST['_shipping_district'] ) ) ) ); // WPCS: Input var okay. CSRF okay.
-					update_post_meta( $order_id, '_shipping_district_id', sanitize_text_field( wp_unslash( $_POST['_shipping_district'] ) ) ); // WPCS: Input var okay. CSRF okay.
+			if ( isset( $_POST['_shipping_pok_district'] ) ) { // WPCS: Input var okay. CSRF okay.
+				if ( 0 !== intval( $_POST['_shipping_pok_district'] ) ) { // WPCS: Input var okay. CSRF okay.
+					$district = $this->core->get_single_district( intval( $_POST['_shipping_pok_city'] ), intval( $_POST['_shipping_pok_district'] ) ); // WPCS: Input var okay. CSRF okay.
+					update_post_meta( $order_id, '_shipping_district', ( isset( $district ) && ! empty( $district ) ? $district : sanitize_text_field( wp_unslash( $_POST['_shipping_pok_district'] ) ) ) ); // WPCS: Input var okay. CSRF okay.
+					update_post_meta( $order_id, '_shipping_pok_district', sanitize_text_field( wp_unslash( $_POST['_shipping_pok_district'] ) ) ); // WPCS: Input var okay. CSRF okay.
 				}
 			}
 		}
