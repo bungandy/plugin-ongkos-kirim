@@ -82,6 +82,10 @@
       "long": "Paket Kilat Khusus",
       "short": "Paket Kilat Khusus"
     },
+    "pos-instan-barang": {
+      "long": "Pos Instan Barang",
+      "short": "Pos Instan Barang"
+    },
     "paketpos-biasa": {
       "long": "Paketpos Biasa",
       "short": "Paketpos Biasa"
@@ -94,13 +98,21 @@
       "long": "EMS Barang (Luar Negeri)",
       "short": "EMS Barang"
     },
-    "paketpos-cepat-ls": {
+    "paketpos-cepat-ln": {
       "long": "Paketpos Cepat LN (Luar Negeri)",
       "short": "Paketpos Cepat LN"
     },
-    "paketpos-biasa-ls": {
+    "paketpos-biasa-ln": {
       "long": "Paketpos Biasa LN (Luar Negeri)",
       "short": "Paketpos Biasa LN"
+    },
+    "pos-ekspor": {
+      "long": "POS Ekspor",
+      "short": "POS Ekspor"
+    },
+    "epacket-lp-app": {
+      "long": "ePacket LP APP",
+      "short": "ePacket LP APP"
     }
   },
   "tiki": {
@@ -149,6 +161,28 @@
     "jsd": {
       "long": "JSD (Same Day Service)",
       "short": "JSD"
+    },
+    "jnd": {
+      "long": "JND (Next Day Service)",
+      "short": "JND"
+    },
+    "eco": {
+      "long": "ECO (Ekonomis)",
+      "short": "ECO"
+    }
+  },
+  "anteraja": {
+    "reg": {
+      "long": "REG (Reguler)",
+      "short": "REG"
+    },
+    "sd": {
+      "long": "SD (Same Day)",
+      "short": "SD"
+    },
+    "nd": {
+      "long": "ND (Next Day)",
+      "short": "ND"
     }
   },
   "wahana": {
@@ -183,6 +217,22 @@
     "sds": {
       "long": "SDS (Same Day Service)",
       "short": "SDS"
+    },
+    "nfo": {
+      "long": "NFO (Food One Night Service)",
+      "short": "NFO"
+    },
+    "nfs": {
+      "long": "NFS (Food Same Day Service)",
+      "short": "NFS"
+    },
+    "drt": {
+      "long": "DRT (Regular Darat)",
+      "short": "DRT"
+    },
+    "jmr": {
+      "long": "JMR (Jawa Murah)",
+      "short": "JMR"
     }
   },
   "pcp": [],
@@ -222,9 +272,13 @@
       "long": "BEST (Besok Sampai Tujuan)",
       "short": "BEST"
     },
-    "cargo": {
-      "long": "Cargo",
-      "short": "Cargo"
+    "gokil": {
+      "long": "GOKIL (Cargo Kilat)",
+      "short": "GOKIL"
+    },
+    "siunt": {
+      "long": "SIUNT (SiUntung)",
+      "short": "SIUNT"
     }
   },
   "pahala": {
@@ -257,6 +311,10 @@
     "ods": {
       "long": "ODS (One Day Service)",
       "short": "ODS"
+    },
+    "cargo-darat": {
+      "long": "CARGO DARAT",
+      "short": "CARGO DARAT"
     }
   },
   "jet": {
@@ -275,6 +333,10 @@
     "pri": {
       "long": "PRI (Priority)",
       "short": "PRI"
+    },
+    "fx": {
+      "long": "FX (Fashion Express)",
+      "short": "FX"
     }
   },
   "dse": {
@@ -310,13 +372,17 @@
     }
   },
   "expedito": {
-    "citylink": {
-      "long": "CityLink",
-      "short": "CityLink"
+    "citylink-express": {
+      "long": "CityLink Express",
+      "short": "CityLink Express"
     },
     "dhl-singapore": {
       "long": "DHL Singapore",
       "short": "DHL Singapore"
+    },
+    "dhl-jkt": {
+      "long": "DHL JKT",
+      "short": "DHL JKT"
     },
     "dpex": {
       "long": "DPEX",
@@ -325,6 +391,10 @@
     "skynet-worldwide": {
       "long": "SkyNet Worldwide",
       "short": "SkyNet Worldwide"
+    },
+    "skysaver-by-skynet-worldwide": {
+      "long": "SkySaver by Skynet Worldwide",
+      "short": "SkySaver by Skynet Worldwide"
     },
     "tnt-fedex": {
       "long": "TNT | Fedex",
@@ -341,6 +411,30 @@
     "sf-express": {
       "long": "SF EXPRESS",
       "short": "SF EXPRESS"
+    },
+    "moon-forwarder": {
+      "long": "Moon Forwarder",
+      "short": "Moon Forwarder"
+    },
+    "networkcouriersg": {
+      "long": "NetworkCourierSG",
+      "short": "NetworkCourierSG"
+    },
+    "gdex-malaysia": {
+      "long": "GDEX Malaysia",
+      "short": "GDEX Malaysia"
+    },
+    "gdex-bandung": {
+      "long": "GDEX Bandung",
+      "short": "GDEX Bandung"
+    },
+    "tnt-express-bandung": {
+      "long": "TNT Express Bandung",
+      "short": "TNT Express Bandung"
+    },
+    "transaeronet-bdg": {
+      "long": "TransAeronet [BDG]",
+      "short": "TransAeronet [BDG]"
     }
   },
   "first": {
@@ -383,6 +477,22 @@
     "regpack": {
       "long": "REGPACK (Regular Service)",
       "short": "REGPACK"
+    },
+    "bigpack": {
+      "long": "BIGPACK (Big Package Service)",
+      "short": "BIGPACK"
+    },
+    "jagopack": {
+      "long": "JAGOPACK (Economy Service)",
+      "short": "JAGOPACK"
+    },
+    "docupack": {
+      "long": "DOCUPACK (Document Service)",
+      "short": "DOCUPACK"
+    },
+    "landpack": {
+      "long": "LANDPACK (Logistic Service)",
+      "short": "LANDPACK"
     }
   },
   "ninja": {
@@ -418,6 +528,14 @@
     }
   },
   "rex": {
+    "reg": {
+      "long": "REGULAR",
+      "short": "REG"
+    },
+    "exp": {
+      "long": "EXPRESS",
+      "short": "EXP"
+    },
   	"rex-0": {
       "long": "REX-0",
       "short": "REX-0"
@@ -430,13 +548,37 @@
       "long": "REX-5",
       "short": "REX-5"
     },
-  	"exp": {
-      "long": "EXPRESS",
-      "short": "EXP"
-    },
   	"rex-10": {
       "long": "REX-10",
       "short": "REX-10"
+    },
+    "rex-50": {
+      "long": "REX-50",
+      "short": "REX-50"
+    }
+  },
+  "ide": {
+    "std": {
+      "long": "STD (Standard)",
+      "short": "STD"
+    }
+  },
+  "sentral": {
+    "darat-elektronik": {
+      "long": "Darat Elektronik",
+      "short": "Darat Elektronik"
+    },
+    "darat-non-elektronik": {
+      "long": "Darat Non Elektronik",
+      "short": "Darat Non Elektronik"
+    },
+    "udara-elektronik": {
+      "long": "Udara Elektronik",
+      "short": "Udara Elektronik"
+    },
+    "udara-non-elektronik": {
+      "long": "Udara Non Elektronik",
+      "short": "Udara Non Elektronik"
     }
   }
 }

@@ -31,6 +31,20 @@
 </div>
 <div class="setting-row">
 	<div class="setting-index">
+		<label><?php esc_html_e( 'Override Default Location to Indonesia', 'pok' ); ?></label>
+		<p class="helper"><?php esc_html_e( 'Override default location to Indonesia in checkout page.', 'pok' ); ?></p>
+	</div>
+	<div class="setting-option">
+		<div class="toggle">
+			<input type="radio" name="pok_setting[override_default_location_to_indonesia]" id="pok-override_default_location_to_indonesia-no" <?php echo 'no' === $settings['override_default_location_to_indonesia'] ? 'checked' : ''; ?> value="no">
+			<label for="pok-override_default_location_to_indonesia-no"><?php esc_html_e( 'No', 'pok' ); ?></label>
+			<input type="radio" name="pok_setting[override_default_location_to_indonesia]" id="pok-override_default_location_to_indonesia-yes" <?php echo 'yes' === $settings['override_default_location_to_indonesia'] ? 'checked' : ''; ?> value="yes">
+			<label for="pok-override_default_location_to_indonesia-yes"><?php esc_html_e( 'Yes', 'pok' ); ?></label>
+		</div>
+	</div>
+</div>
+<div class="setting-row">
+	<div class="setting-index">
 		<label><?php esc_html_e( 'Debug Mode', 'pok' ); ?></label>
 		<p class="helper"><?php esc_html_e( 'You will be able to access the error logs on the new menu tab that will show up after you enable this option. Be careful, this option will disable caching feature!', 'pok' ); ?></p>
 	</div>
