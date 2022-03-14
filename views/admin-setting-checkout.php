@@ -19,7 +19,7 @@
 <div class="setting-row">
 	<div class="setting-index">
 		<label><?php esc_html_e( 'Auto Fill Address', 'pok' ); ?></label>
-		<p class="helper"><?php esc_html_e( 'Auto-fill checkout field with saved address if customer is a returning customer.', 'pok' ); ?></p>
+		<p class="helper"><?php esc_html_e( 'Auto-fill checkout field with saved address if customer is a returning user.', 'pok' ); ?></p>
 	</div>
 	<div class="setting-option">
 		<div class="toggle">

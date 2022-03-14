@@ -142,10 +142,10 @@ class POK_Core {
 			$type = $this->setting->get( 'rajaongkir_type' );
 		}
 		if ( 'nusantara' === $vendor ) { // tonjoo.
-			$courier = array( 'jne', 'pos', 'tiki', 'jnt', 'sicepat', 'lion', 'anteraja', 'wahana', 'atlas' );
+			$courier = array( 'jne', 'pos', 'tiki', 'jnt', 'wahana', 'sicepat', 'lion' );
 		} else {
 			if ( 'pro' === $type ) { // rajaongkir pro.
-				$courier = array( 'jne', 'pos', 'tiki', 'jnt', 'sicepat', 'lion', 'anteraja', 'wahana', 'esl', 'ncs', 'pcp', 'rpx', 'pandu', 'pahala', 'sap', 'jet', 'dse', 'slis', 'expedito', 'first', 'star', 'ninja', 'idl', 'rex', 'ide', 'sentral' );
+				$courier = array( 'jne', 'pos', 'tiki', 'jnt', 'wahana', 'esl', 'ncs', 'pcp', 'rpx', 'pandu', 'sicepat', 'pahala', 'sap', 'jet', 'dse', 'slis', 'expedito', 'first', 'star', 'lion', 'ninja', 'idl', 'rex' );
 			} elseif ( 'basic' === $type ) { // rajaongkir basic.
 				$courier = array( 'jne', 'pos', 'tiki', 'pcp', 'rpx', 'esl' );
 			} else { // rajaongkir free.
@@ -161,7 +161,7 @@ class POK_Core {
 	 * @return array All couriers.
 	 */
 	public function get_all_couriers() {
-		return apply_filters( 'pok_all_couriers', array( 'jne', 'pos', 'tiki', 'jnt', 'sicepat', 'lion', 'anteraja', 'wahana', 'ninja', 'esl', 'ncs', 'pcp', 'rpx', 'pandu', 'pahala', 'sap', 'jet', 'dse', 'slis', 'expedito', 'first', 'star', 'idl', 'rex', 'atlas', 'ide', 'sentral' ) );
+		return apply_filters( 'pok_all_couriers', array( 'jne', 'pos', 'tiki', 'jnt', 'wahana', 'sicepat', 'lion', 'ninja', 'esl', 'ncs', 'pcp', 'rpx', 'pandu', 'pahala', 'sap', 'jet', 'dse', 'slis', 'expedito', 'first', 'star', 'idl', 'rex' ) );
 	}
 
 	/**

@@ -81,22 +81,6 @@
 
 <div class="setting-row">
 	<div class="setting-index">
-		<label><?php esc_html_e( 'Only Show Cargo Services When Minimum Weight is Reached', 'pok' ); ?></label>
-		<p class="helper"><?php echo wp_kses_post( __( 'If minimum weight is not reached, cargo services will be hidden from the result', 'pok' ) ); ?></p>
-	</div>
-	<div class="setting-option">
-		<div class="toggle">
-			<input type="radio" name="pok_setting[only_show_cargo_on_min_weight]" id="pok-only_show_cargo_on_min_weight-no" <?php echo 'no' === $settings['only_show_cargo_on_min_weight'] ? 'checked' : ''; ?> value="no">
-			<label for="pok-only_show_cargo_on_min_weight-no"><?php esc_html_e( 'No', 'pok' ); ?></label>
-			<input type="radio" name="pok_setting[only_show_cargo_on_min_weight]" id="pok-only_show_cargo_on_min_weight-yes" <?php echo 'yes' === $settings['only_show_cargo_on_min_weight'] ? 'checked' : ''; ?> value="yes">
-			<label for="pok-only_show_cargo_on_min_weight-yes"><?php esc_html_e( 'Yes', 'pok' ); ?></label>
-		</div>
-		<p class="helper"><?php echo wp_kses_post( __( "Cargo services includes: JNE JTR, Sicepat Cargo, TIKI TRC, Wahana Cargo, and Lion Parcel Bigpack.", 'pok' ) ); ?></p>
-	</div>
-</div>
-
-<div class="setting-row">
-	<div class="setting-index">
 		<label><?php esc_html_e( 'Show Long Service Name on Checkout', 'pok' ); ?></label>
 		<p class="helper"><?php echo wp_kses_post( __( 'Show long description for each courier service name', 'pok' ) ); ?></p>
 	</div>

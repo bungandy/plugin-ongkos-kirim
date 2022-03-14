@@ -65,7 +65,6 @@ jQuery(function($) {
 			ajax: {
 				url: ajaxurl,
 				dataType: 'json',
-				delay: 250,
 				data: function( params ) {
 					return {
 						pok_action: nonce,

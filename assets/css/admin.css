@@ -96,9 +96,6 @@
 .select2 {
 	width: 100% !important;
 }
-.woocommerce .select2 {
-	width: auto !important;
-}
 .select2-container {
 	margin: 1px 0;
 	font-size: 13px;

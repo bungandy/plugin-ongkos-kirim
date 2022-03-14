@@ -63,9 +63,6 @@ class POK_Wizard {
 		wp_localize_script( 'wc-setup', 'wc_setup_params', array() );
 
 		wp_enqueue_style( 'pok-admin', POK_PLUGIN_URL . '/assets/css/admin.css', array( 'select2' ), POK_VERSION );
-		wp_enqueue_style( 'pok-wizard', POK_PLUGIN_URL . '/assets/css/wizard.css', array(), POK_VERSION );
-
-		remove_action( 'admin_enqueue_scripts', array( 'Automattic\WooCommerce\Admin\Loader', 'load_scripts' ), 15 );
 	}
 
 	/**
@@ -559,7 +556,7 @@ class POK_Wizard {
 		}
 		?>
 		<h1><?php esc_html_e( 'Your Site is Ready!', 'pok' ); ?></h1>
-		<p><?php esc_html_e( 'Plugin Ongkos Kirim is configured, shipping costs should be shown on the checkout page when customers fill in the address. Why do not you try it yourself?' ); ?></p>
+		<p><?php esc_html_e( 'Plugin Ongkos Kirim is configured, shipping costs should be shown on the checkout page when users fill in the address. Why do not you try it yourself?' ); ?></p>
 		<div class="wc-setup-next-steps">
 			<div class="wc-setup-next-steps-first">
 				<span style="color:#666;"><?php esc_html_e( 'Thank you for using Plugin Ongkos Kirim.', 'pok' ); ?></span><br>
