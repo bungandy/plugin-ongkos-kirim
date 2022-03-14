@@ -64,6 +64,8 @@ class POK_Wizard {
 
 		wp_enqueue_style( 'pok-admin', POK_PLUGIN_URL . '/assets/css/admin.css', array( 'select2' ), POK_VERSION );
 		wp_enqueue_style( 'pok-wizard', POK_PLUGIN_URL . '/assets/css/wizard.css', array(), POK_VERSION );
+
+		remove_action( 'admin_enqueue_scripts', array( 'Automattic\WooCommerce\Admin\Loader', 'load_scripts' ), 15 );
 	}
 
 	/**

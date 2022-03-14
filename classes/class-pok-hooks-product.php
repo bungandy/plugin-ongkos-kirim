@@ -153,18 +153,18 @@ class POK_Hooks_Product {
 		$districts 			= array();
 		if ( is_user_logged_in() ) {
 			$user_id = get_current_user_id();
-			$selected_province 	= $this->helper->get_address_id_from_user( $user_id, 'shipping_state' );
-			$selected_city      = $this->helper->get_address_id_from_user( $user_id, 'shipping_city' );
-			$selected_district  = $this->helper->get_address_id_from_user( $user_id, 'shipping_district' );
+			$selected_province 	= $this->helper->get_address_id_from_user( $user_id, 'shipping', 'state' );
+			$selected_city      = $this->helper->get_address_id_from_user( $user_id, 'shipping', 'city' );
+			$selected_district  = $this->helper->get_address_id_from_user( $user_id, 'shipping', 'district' );
 			$cities 			= $this->core->get_city( $selected_province );
 			if ( 'pro' === $this->helper->get_license_type() ) {
 				$districts 		= $this->core->get_district( $selected_city );
 			}
 			if ( $this->helper->is_use_simple_address_field() ) {
 				$user_id = get_current_user_id();
-				$default[ 'shipping_state' ]      = $this->helper->get_address_id_from_user( $user_id, 'shipping_state' );
-				$default[ 'shipping_city' ]       = $this->helper->get_address_id_from_user( $user_id, 'shipping_city' );
-				$default[ 'shipping_district' ]   = $this->helper->get_address_id_from_user( $user_id, 'shipping_district' );
+				$default[ 'shipping_state' ]      = $this->helper->get_address_id_from_user( $user_id, 'shipping', 'state' );
+				$default[ 'shipping_city' ]       = $this->helper->get_address_id_from_user( $user_id, 'shipping', 'city' );
+				$default[ 'shipping_district' ]   = $this->helper->get_address_id_from_user( $user_id, 'shipping', 'district' );
 				
 				if ( ! empty( $selected_province ) && ! empty( $selected_city ) && ! empty( $selected_district ) ) {
 					$city_id = $selected_district . '_' . $selected_city . '_' . $selected_province;

@@ -83,7 +83,7 @@ if ( ! class_exists( 'Tonjoo_Plugins_Upsell' ) ) {
 
 					if ( 'plugin' === $d->type ) {
 
-						if ( $d->require_woocommerce && ! in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', get_option( 'active_plugins' ) ), true ) ) {
+						if ( $d->require_woocommerce && ! class_exists( 'woocommerce' ) ) {
 							continue;
 						}
 

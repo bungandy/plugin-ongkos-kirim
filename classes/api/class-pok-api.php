@@ -371,7 +371,7 @@ class POK_API {
 							}
 
 							// fix etd time not valid.
-							$etd = trim( str_replace( 'Hari', '', $t->etd ) );
+							$etd = trim( str_replace( array( 'Hari', 'HARI' ), '', $t->etd ) );
 							if ( false === strpos( $etd, '-' ) ) {
 								if ( 0 !== intval( $etd ) ) {
 									if ( 0 < floor( intval( $etd ) / 24 ) ) {
@@ -422,13 +422,15 @@ class POK_API {
 				foreach ( $result as $c ) {
 					if ( is_array( $c->costs ) && ! empty( $c->costs ) ) {
 						foreach ( $c->costs as $t ) {
+							$etd = ! empty( $t->etd ) ? $t->etd : '';
+							$etd = trim( str_replace( array( 'Hari', 'HARI' ), '', $etd ) );
 							$costs[] = array(
 								'class'         => strtoupper( $c->code ) . ' - ' . $t->service,
 								'courier'       => strtolower( $c->code ),
 								'service'       => $t->service,
 								'description'   => '',
 								'cost'          => 'USD' === $t->currency ? floatval( $t->cost ) * floatval( $exchange ) : floatval( $t->cost ),
-								'time'          => ! empty( $t->etd ) ? $t->etd : '',
+								'time'          => $etd,
 							);
 						}
 					}
